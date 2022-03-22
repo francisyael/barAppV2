@@ -1,0 +1,630 @@
+﻿<link href="~/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+<div class="card mb-4 py-md-3 border-right-0 text-center">
+    <h1 class="h3 mb-0 text-gray-800">Reportes</h1>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <ul class="nav nav-pills" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" data-toggle="pill" href="#home" role="tab">Ventas</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-toggle="pill" href="#historyInventario" role="tab">Inventario</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-toggle="pill" href="#historyGastos" role="tab">Gastos</a>
+            </li>
+            
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
+                <div class="tab-content" id="myTabContent">
+
+                    @*reporte ventas*@
+                    <div class="tab-pane fade show active" id="home" role="tabpanel">
+                        <div id="dataTable_filter" class="dataTables_filter">
+
+                            <label>
+                                Buscar:
+                                <input type="search" placeholder="No.Venta" id="Search" onkeyup="SearchTable()" class="form-control form-control-sm">
+                            </label>
+                        </div>
+                        <div class="float-right">   <button id="btnReportesVentas" onclick="fnExcelReport('dataTableVentas')" class="btn btn-success" name="" value="Buscar"><i class="fa fa-file-excel"></i> Descargar</button></div>
+                        <h5 class="text-secondary text-center mb-4">Histórico Ventas</h5>
+
+                        <div class="form-group">
+
+                            <div class="col-md-4 float-left">
+                                @Html.Label("Forma de Pago", htmlAttributes: new { @class = "control-label col-md-4" })
+                                @Html.DropDownList("TipoPago", new SelectList((System.Collections.IEnumerable)ViewData["TipoPago"], "numPago", "nombre"), htmlAttributes: new { id = "TipoPago", @class = "form-control", @required = "required" })
+                                @Html.Label("Fecha Incio", htmlAttributes: new { @class = "control-label col-md-4" })
+                                <input type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" name="fechaIncioVentas" id="fechaIncioVentas" />
+                                @Html.Label("Fecha Final", htmlAttributes: new { @class = "control-label col-md-4" })
+                                <input type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" name="fechaFinalVentas" id="fechaFinalVentas" />
+                                <br />
+                                <button id="btnReportesVentas" onclick="buscarVentas()" class="btn btn-success" name="" value="Buscar"><i class="fa fa-search"></i> Buscar  </button>
+
+                            </div>
+                         
+                        </div>
+                       
+                      
+                        <div id="DivUserList">
+                            @*<div class="float-right"><span class="text-right">Monto Ganancias</span><input id="MontoGanancia" type="text" readonly class="form-control form-control-lg" name="" /></div>
+                            <div class="float-right"><span class="text-right">Monto Total</span><input id="MontoTotal" type="text" readonly class="form-control form-control-lg" name="" /></div>*@
+                            <div class="card-body float-right">
+                                <div class="row">
+                                    <div class="col-7">
+                                        <canvas id="cuentas"></canvas>
+                                    </div>
+                                    <div class="col-7">
+                                        <canvas id="montos"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            @Html.Partial("ListaReportesVentas")
+                        </div>
+                    </div>
+
+
+                   @*reporte inventario*@
+
+                <div class="tab-pane fade" id="historyInventario" role="tabpanel">
+                    <div id="dataTable_filter" class="dataTables_filter">
+                        <label>
+                            Buscar:
+                            <input type="search" id="Search1" onkeyup="SearchTable1()" placeholder="Producto" class="form-control form-control-sm">
+                        </label>
+                    </div>
+
+
+
+                    @*<div class="float-right">   <button id="btnReportesInventario" onclick="ExportarInventario()" class="btn btn-success" name="" value="Buscar"><i class="fa fa-file-excel"></i> Descargar</button></div>*@
+                    <h5 class="text-secondary text-center mb-4">Histórico Inventario (Entradas)</h5>
+
+                    <div class="form-group">
+
+                        <div class="col-md-4 float-left">
+                            @Html.Label("Localidad", htmlAttributes: new { @class = "control-label col-md-4" })
+                            @Html.DropDownList("TipoLocalidad", new SelectList((System.Collections.IEnumerable)ViewData["TipoLocalidad"], "Id", "Nombre"), htmlAttributes: new { id = "TipoLocalidad", @class = "form-control", @required = "required" })
+                            @Html.Label("Fecha Incio", htmlAttributes: new { @class = "control-label col-md-4" })
+                            <input type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" name="fechaIncioInventario" id="fechaIncioInventario" />
+                            @Html.Label("Fecha Final", htmlAttributes: new { @class = "control-label col-md-4" })
+                            <input type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" name="fechaFinalInventario" id="fechaFinalInventario" />
+                            <br />
+                            <button id="btnReportesInventario" onclick="buscarInventario()" class="btn btn-success" name="" value="Buscar"><i class="fa fa-search"></i> Buscar  </button>
+
+                        </div>
+
+                    </div>
+
+                    <div id="DivUserList">
+                        @*<div class="float-right"><span class="text-right">Monto Ganancias</span><input id="MontoGanancia" type="text" readonly class="form-control form-control-lg" name="" /></div>
+            <div class="float-right"><span class="text-right">Monto Total</span><input id="MontoTotal" type="text" readonly class="form-control form-control-lg" name="" /></div>*@
+                    
+                        @Html.Partial("ListaReportesInventario", ViewData["ListadoInventario"])
+                    </div>
+
+
+
+                    @*@{Html.RenderPartial("ListaHistoricoCreditos");}*@
+                </div>
+
+                <div class="tab-pane fade" id="historyGastos" role="tabpanel">
+                    <div id="dataTable_filter" class="dataTables_filter">
+                        <label>
+                            Buscar:
+                            <input type="search" id="Search2" onkeyup="SearchTable2()" class="form-control form-control-sm">
+                        </label>
+                    </div>
+
+                    <h5 class="text-secondary text-center mb-4">Histórico Gastos</h5>
+
+
+                    <div class="form-group">
+
+                        <div class="col-md-4 float-left">
+                            @Html.Label("Fecha Incio", htmlAttributes: new { @class = "control-label col-md-4" })
+                            <input type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" name="fechaIncioGasto" id="fechaIncioGasto" />
+                            @Html.Label("Fecha Final", htmlAttributes: new { @class = "control-label col-md-4" })
+                            <input type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" name="fechaFinalGasto" id="fechaFinalGasto" />
+                            <br />
+                            <button id="btnReportesGasto" onclick="buscarGasto()" class="btn btn-success" name="" value="Buscar"><i class="fa fa-search"></i> Buscar  </button>
+
+                        </div>
+
+                    </div>
+
+                    <div id="DivUserList">
+                      
+                        @*<div class="float-right"><span class="text-right">Monto Total</span><input id="MontoTotal" type="text" readonly class="form-control form-control-lg" name="" /></div>*@
+                        <div class="card-body float-right">
+                            <div class="row">
+                                <div class="col-7">
+                                    <canvas id="Gastos"></canvas>
+                                </div>
+                                <div class="col-7">
+                                    <canvas id="montos"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        @Html.Partial("ListadoReportesGasto", ViewData["ListadoGastos"])
+                    </div>
+                    @*@{Html.RenderPartial("ListaHistoricoCreditos");}*@
+                </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/vendor/chart.js/Chart.min.js"></script>
+<script>
+
+
+    
+    function buscarGasto() {
+        var rango = {}
+
+        rango.fechaInicio = document.getElementById("fechaIncioGasto").value
+        rango.fechaFinal = document.getElementById("fechaFinalGasto").value
+       // rango.index =$("#TipoLocalidad option:selected").val()
+      
+        $("#progress").show()
+
+                $.ajax({
+                    type: "Post",
+                    url: "../Home/ReportesGastos",
+                    data: JSON.stringify(rango),
+                    contentType: "application/json; charset=utf-8",
+                    ajax: true,
+
+                    success: function (Response) {
+
+                           var charGastos
+                      
+                        $("#dataTableGastos").html(Response)
+
+                        var total=0;
+
+                          var r =0
+                         $('#dataTableGastos > tbody  > tr').each(function() { 
+
+                           
+                             if (r==1) {
+                              total += parseFloat($(this).children().eq(1).text());
+                             }
+                          
+                             r =1
+                             
+                       
+                        });
+
+                       
+
+                   //     alert(total.toString())
+
+
+                        var otro = 0;
+                        
+                    $(function () {
+                        //let MontoTotal = TotalVenta;
+                        //let MontoGanancia = TotalGanancias;
+                       
+
+                        charGastos = new Chart($('#Gastos')[0], {
+                            type: 'doughnut',
+                            data: {
+                                labels: ["Total Gastos"],
+                                datasets: [{
+                                    data: [total],
+                                    backgroundColor: ['#4e73df', '#1cc88a'],
+                                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                                }],
+                                 isMoney: true
+                            },
+                            options: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 30,
+                                        boxWidth: 15,
+                                        fontSize: 16,
+                                        fontColor: '#5a5c69',
+                                        fontStyle: 'bold',
+                                        generateLabels: _generateLabels
+                                    },
+                                    reverse: true
+                                },
+                                cutoutPercentage: 70,
+                                aspectRatio: 2
+                            }
+                        });
+
+                    });
+
+
+                            $("#progress").hide()
+                   },
+                    error: function (Response) {
+                        $("#progress").hide()
+                        alert(Response)
+                     
+                    }
+                })
+
+
+    }
+
+
+
+    function buscarInventario() {
+        var rango = {}
+
+        rango.fechaInicio = document.getElementById("fechaIncioInventario").value
+        rango.fechaFinal = document.getElementById("fechaFinalInventario").value
+        rango.index =$("#TipoLocalidad option:selected").val()
+      
+        $("#progress").show()
+
+                $.ajax({
+                    type: "Post",
+                    url: "../Home/ReportesInventario",
+                    data: JSON.stringify(rango),
+                    contentType: "application/json; charset=utf-8",
+                    ajax: true,
+
+                    success: function (Response) {
+
+                        $("#dataTableInventario").html(Response)
+                            $("#progress").hide()
+                   },
+                    error: function (Response) {
+                        $("#progress").hide()
+                        alert(Response)
+                     
+                    }
+                })
+
+
+    }
+
+
+
+    function buscarVentas() {
+
+        var rango = {}
+
+
+
+        rango.fechaInicio = document.getElementById("fechaIncioVentas").value
+        rango.fechaFinal =  document.getElementById("fechaFinalVentas").value
+        rango.index =$("#TipoPago option:selected").val() // $('#TipoPago :selected').text();  //$('#TipoPago').val()
+
+        $("#progress").show()
+
+                $.ajax({
+                    type: "Post",
+                    url: "../Home/ReportesVentas",
+                    data: JSON.stringify(rango),
+                    contentType: "application/json; charset=utf-8",
+                    ajax: true,
+
+
+                    success: function(Response) {
+
+                     $("#dataTableVentas").html(Response)
+                                              
+                        //////////
+                          $.ajax({
+                    type: "Post",
+                    url: "../Home/ReportesVentasTotales",
+                    data: JSON.stringify(rango),
+                    contentType: "application/json; charset=utf-8",
+                    ajax: true,
+
+
+                    success: function(Response) {
+
+                    
+                        //$("#MontoGanancia").val(formatter.format(Response.TotalGanancias))
+                        //$("#MontoTotal").val(formatter.format(Response.TotalVenta))
+
+
+                    //var TotalGanancias =formatter.format(Response.TotalGanancias)
+                    //var TotalVenta = formatter.format(Response.TotalVenta)
+                   // var usuarios = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.VendedorOrigen));
+                    var chartCuentas;
+                    var chartMontos;
+
+                    $(function () {
+                        //let MontoTotal = TotalVenta;
+                        //let MontoGanancia = TotalGanancias;
+                       
+
+                        chartCuentas = new Chart($('#cuentas')[0], {
+                            type: 'doughnut',
+                            data: {
+                                labels: ["Total Ganancia","Total Pagado"],
+                                datasets: [{
+                                    data: [ Response.TotalGanancias, Response.TotalVenta],
+                                    backgroundColor: ['#4e73df', '#1cc88a'],
+                                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                                }],
+                                 isMoney: true
+                            },
+                            options: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 30,
+                                        boxWidth: 15,
+                                        fontSize: 16,
+                                        fontColor: '#5a5c69',
+                                        fontStyle: 'bold',
+                                        generateLabels: _generateLabels
+                                    },
+                                    reverse: true
+                                },
+                                cutoutPercentage: 70,
+                                aspectRatio: 2
+                            }
+                        });
+
+                    });
+
+
+
+                             $("#progress").hide()
+
+                    },
+                    error: function (Response) {
+                         $("#MontoGanancia").val("")
+                        $("#MontoTotal").val("")
+                        alert(Response)
+                             $("#progress").hide()
+                    }
+                })
+
+
+
+            },
+            error: function (Response) {
+
+                alert(Response)
+                     $("#progress").hide()
+            }
+        })
+    }
+
+      function _generateLabels(chart) {
+        var data = chart.data;
+        if (data.labels.length && data.datasets.length) {
+            return data.labels.map(function (label, i) {
+                let meta = chart.getDatasetMeta(0);
+                let ds = data.datasets[0];
+                let arc = meta.data[i];
+                let custom = arc && arc.custom || {};
+                let getValueAtIndexOrDefault = Chart.helpers.getValueAtIndexOrDefault;
+                let arcOpts = chart.options.elements.arc;
+                let fill = custom.backgroundColor ? custom.backgroundColor : getValueAtIndexOrDefault(ds.backgroundColor, i, arcOpts.backgroundColor);
+                let stroke = custom.borderColor ? custom.borderColor : getValueAtIndexOrDefault(ds.borderColor, i, arcOpts.borderColor);
+                let bw = custom.borderWidth ? custom.borderWidth : getValueAtIndexOrDefault(ds.borderWidth, i, arcOpts.borderWidth);
+                let value = chart.config.data.datasets[arc._datasetIndex].data[arc._index];
+                let isMoney = data.isMoney;
+
+                return {
+                    text: label + ": " + (!isMoney ? value : formatter.format(value)),
+                    fillStyle: fill,
+                    strokeStyle: stroke,
+                    lineWidth: bw,
+                    hidden: isNaN(ds.data[i]) || meta.data[i].hidden,
+                    index: i
+                };
+            });
+        } else {
+            return [];
+        }
+    }
+
+
+    @*var creditos = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.AllCreditos));*@
+
+    //buscar categoria...............................................................
+    function SearchTable() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("Search");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("dataTableVentas");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+     function SearchTable2() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("Search2");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("dataTableGastos");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    //buscar historico...............................................................
+    function SearchTable1() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("Search1");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("dataTableInventario");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    //detallesVenta
+    function myfunction(idVentas) {
+
+             $.ajax({
+            url: "../Home/IndexDetalles?Id=" + idVentas,
+            type: "POST",
+            async: false,
+            contentType: 'application/json;charset=UTF-8',
+
+            success: function (Response) {
+                $("#detalle").html(Response);
+                //detalle
+
+                $("#DetallesVenta").modal("show")
+
+            }
+
+        });
+    }
+   
+    
+
+    function fnExcelReport(table_id) {
+        //var tab_text = "<table border='2px'><tr bgcolor='#87AFC6'>";
+        //var textRange; var j = 0;
+        //tab = document.getElementById('Vista360'); // id of table
+
+        //for (j = 0; j < tab.rows.length; j++) {
+        //    tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+        //    //tab_text=tab_text+"</tr>";
+        //}
+
+        //tab_text = tab_text + "</table>";
+        //tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, "");//remove if u want links in your table
+        //tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+        //tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+
+        //var ua = window.navigator.userAgent;
+        //var msie = ua.indexOf("MSIE ");
+
+        //if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))      // If Internet Explorer
+        //{
+        //    txtArea1.document.open("txt/html", "replace");
+        //    txtArea1.document.write(tab_text);
+        //    txtArea1.document.close();
+        //    txtArea1.focus();
+        //    sa = txtArea1.document.execCommand("SaveAs", true, "Say Thanks to Sumit.xls");
+        //}
+        //else                 //other browser not tested on IE 11
+        //    sa = window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+
+        //return (sa);
+  //var htmltable= document.getElementById('Vista360');
+  //     var html = htmltable.outerHTML;
+  //     window.open('data:application/vnd.ms-excel,' + encodeURIComponent(html),'_blank');
+
+        var rows = document.querySelectorAll('table#' + table_id + ' tr');
+    // Construct csv
+    var csv = [];
+    for (var i = 0; i < rows.length; i++) {
+        var row = [], cols = rows[i].querySelectorAll('td, th');
+        for (var j = 0; j < cols.length; j++) {
+            // Clean innertext to remove multiple spaces and jumpline (break csv)
+            var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
+            // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)
+            data = data.replace(/"/g, '""');
+            // Push escaped string
+            row.push('"' + data + '"');
+        }
+        csv.push(row.join(','));
+    }
+    var csv_string = csv.join('\n');
+    // Download it
+    var filename = 'export_' + table_id + '_' + new Date().toLocaleDateString() + '.csv';
+    var link = document.createElement('a');
+    link.style.display = 'none';
+    link.setAttribute('target', '_blank');
+    link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv_string));
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    }
+
+</script>
+
+
+
+<div id="progress" class="modal">
+    <div class="parentDiv">
+        <img class="parentDiv" src="~/Resource/unnamed.gif" />
+    </div>
+</div>
+
+<style>
+    #Gif {
+        display: block;
+        margin: 0 auto;
+    }
+
+    .parentDiv {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .footer_ {
+        float: right;
+    }
+</style>
+
+
+<div class="modal fade" id="DetallesVenta" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle"><span class="fa-2x">Detalles venta</span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                @{Html.RenderPartial("ListadoDetallesOrdenes", ViewData["ListadoDetallesOrdenes_"] as IEnumerable<barApp.DetalleVenta>);}
+
+            </div>
+            @*<div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Guarda</button>
+                </div>*@
+        </div>
+    </div>
+</div>

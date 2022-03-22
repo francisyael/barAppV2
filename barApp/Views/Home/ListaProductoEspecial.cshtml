@@ -1,0 +1,36 @@
+﻿@model IEnumerable<barApp.Producto>
+
+@if (Model != null){
+
+    <table id="Listap"  class="table table-bordered Listap" width="100%" cellspacing="0" role="grid" aria-describedby="Listap_info" style="width: 100%;">
+
+        <tr class="odd">
+            <th>
+              Producto
+            </th>
+            <th>
+               Cantidad
+            </th>
+            
+        </tr>
+
+        @foreach (var item in Model)
+        {
+        <tr class="odd">
+            <td>
+                @Html.DisplayFor(modelItem => item.nombre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.idProductoEspecialCantidad)
+            </td>
+       
+        </tr>
+        }
+
+    </table>
+
+
+}
+
+
+    @{Html.RenderPartial("ModalMessenge", ViewData["Alert"] as barApp.Models.InfoMensaje);}

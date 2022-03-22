@@ -1,0 +1,1474 @@
+﻿@* Botones...................................................................*@
+@if (Session["Rol"].ToString() == "1" || Session["Rol"].ToString() == "4" || Session["Rol"].ToString() == "3")
+{
+    <div class="row">
+        <!-- Cuadre -->
+        <div class="col-xl-3 col-md-6 mb-4" data-toggle="modal" data-target="#Cuadre" onclick="CuadreBegin()">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="h5 my-1 font-weight-bold text-gray-800">Cierre de caja</div>
+                            <div class="text-xs font-weight-bold text-gray-500 text-uppercase">
+                                Cuadre
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Facturar -->
+        <div class="col-xl-3 col-md-6 mb-4" data-toggle="modal" data-target="#Facturar" onclick="FacturarBegin()">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="h5 my-1 font-weight-bold text-gray-800">Facturar</div>
+                            <div class="text-xs font-weight-bold text-gray-500 text-uppercase">
+                                Cuenta
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transferir -->
+        <div class="col-xl-3 col-md-6 mb-4" @*data-toggle="modal" data-target="#Transferir"*@ onclick="TransferirClear()">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 my-1 mr-3 font-weight-bold text-gray-800">Transferir</div>
+                                    <div class="text-xs font-weight-bold text-gray-500 text-uppercase">
+                                        Cuenta
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-people-arrows fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--Enlazar -->
+        <div class="col-xl-3 col-md-6 mb-4" @*data-toggle="modal" data-target="#Enlazar"*@ onclick="EnlazarClear()">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="h5 my-1 font-weight-bold text-gray-800">Enlazar</div>
+                            <div class="text-xs font-weight-bold text-gray-500 text-uppercase">
+                                Cuenta
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-link fa-2x  text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Grafico...................................................................*@
+
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Cuentas (F5 Actulizar)</h6>
+                <div class="d-flex flex-lg-row align-items-center justify-content-end">
+                    <p id="ChartSelected" class="text-primary my-0 mr-3">Todos</p>
+
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
+                            <div class="dropdown-header">Camarer@@</div>
+                            <a class="dropdown-item" href="#" onclick="ChangeChart(0)">Todos</a>
+
+                            @for (int index = 0; index < ViewBag.Vendedores.Length; index++)
+                            {
+                                <a class="dropdown-item" href="#" onclick="ChangeChart(@(ViewBag.Vendedores[index].idUsuario))">@(ViewBag.Vendedores[index].nombre)</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <canvas id="cuentas"></canvas>
+                    </div>
+                    <div class="col-6">
+                        <canvas id="montos"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Modals...................................................................*@
+
+<div>
+    @* Cuadre...................................................................*@
+    <div class="modal fade" id="Cuadre" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content border-secondary">
+                <div class="modal-header bg-primary text-white align-items-center">
+                    <span class="fas fa-dollar-sign fa-3x mr-4"></span>
+                    <h1 class="modal-title font-weight-bold">Cierre de Caja</h1>
+                    <span class="fas fa-times fa-lg p-3" data-dismiss="modal" style="margin: -1rem -1rem -1rem auto; cursor: pointer"></span>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-around">
+                        <dl>
+                            <dt class="text-info font-weight-bold h5 mb-0">Venta General</dt>
+                            <dd>--</dd>
+                            <dt class="text-success font-weight-bold h5 mb-0">Efectivo</dt>
+                            <dd>--</dd>
+                            <dt class="text-success font-weight-bold h5 mb-0">Depositos</dt>
+                            <dd>--</dd>
+                            <dt class="text-success font-weight-bold h5 mb-0">Tarjeta de Credito/Debito</dt>
+                            <dd>--</dd>
+                            <dt class="text-warning font-weight-bold h5 mb-0">Enviado a Credito</dt>
+                            <dd>--</dd>
+                            <dt class="text-warning font-weight-bold h5 mb-0">Cortesia</dt>
+                            <dd>--</dd>
+                            <dt class="text-danger font-weight-bold h5 mb-0">Gastos Operacionales</dt>
+                            <dd>--</dd>
+                            <dt class="text-danger font-weight-bold h5 mb-0">Descuentos</dt>
+                            <dd>--</dd>
+                        </dl>
+                        <dl>
+
+                            <dd class="font-weight-bold" id="VentasCuadre">$0.00</dd>
+                            <dt class="text-success font-weight-bold h5 mb-0">--</dt>
+                            <dd id="VentasEfectivo">$0.00</dd>
+                            <dt class="text-success font-weight-bold h5 mb-0">--</dt>
+                            <dd id="VentasDepositos">$0.00</dd>
+                            <dt class="text-success font-weight-bold h5 mb-0">--</dt>
+                            <dd id="VentasCredito_Debito">$0.00</dd>
+                            <dt class="text-warning font-weight-bold h5 mb-0">--</dt>
+                            <dd id="VentasEnviadoCredito">$0.00</dd>
+                            <dt class="text-warning font-weight-bold h5 mb-0">--</dt>
+                            <dd id="VentasCortesia">$0.00</dd>
+                            <dt class="text-danger font-weight-bold h5 mb-0">--</dt>
+                            <dd id="GastosCuadre">$0.00</dd>
+                            <dt class="text-danger font-weight-bold h5 mb-0">--</dt>
+                            <dd id="VentaDescuentos">$0.00</dd>
+                        </dl>
+                        <dl>
+                            <dt class="text-success font-weight-bold h5 mb-0">--</dt>
+                            <dt class="text-success font-weight-bold h5 mb-0">--</dt>
+                            <dd id="txtVentasDepositos"><input type="number" id="efectivo_" name="efectivo_" value="0" /></dd>
+                            <dt class="text-success font-weight-bold h5 mb-0">--</dt>
+                            <dd id="txtVentasCredito_Debito"><input type="number" id="deposito_" name="deposito_" value="0" /></dd>
+                            <dt class="text-success font-weight-bold h5 mb-0">--</dt>
+                            <dd id="txtVentasEfectivo"><input type="number" id="credito_" name="credito_" value="0" /></dd>
+                        </dl>
+
+                    </div>
+                    <div class="d-flex justify-content-around">
+                        <textarea name="nota_" id="nota_" placeholder="Nota" style="width:500px;height:100px;"></textarea>
+                    </div>
+
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="enviarCierre" onclick="CuadreReady()">Enviar Cierre</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*Facturar...................................................................*@
+    <div class="modal fade" id="Facturar" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content border-secondary">
+                <div class="modal-header bg-success text-white align-items-center">
+                    <span class="fas fa-shopping-cart fa-3x mr-4"></span>
+                    <h1 class="modal-title font-weight-bold">Facturar cuenta</h1>
+                    <span class="fas fa-times fa-lg p-3" data-dismiss="modal" style="margin: -1rem -1rem -1rem auto; cursor: pointer"></span>
+                </div>
+                <div class="modal-body">
+                    <div class="col mr-2">
+                        <div class="row">
+                            <div class="col-6">
+                                <h5 class="font-weight-bold">Camarer@@</h5>
+                                @Html.DropDownList("VendedorFacturar", new SelectList(ViewBag.VendedorOrigen, "idUsuario", "nombre", 0), "Seleccionar", new { @class = "form-control", @onchange = "Facturar()" })
+                                @Html.DropDownList("UsuariosFacturar", new SelectList(ViewBag.Usuarios, "idUsuario", "nombre", 0), "Seleccionar", new { @class = "form-control d-none", @onchange = "FacturarHandleChange()" })
+                            </div>
+                            <div class="col-6">
+                                <h5 class="font-weight-bold">Número de orden</h5>
+                                <input id="NumOrdenFacturar" type="text" class="form-control" />
+                            </div>
+                        </div>
+                        <br />
+
+                        <h5 class="font-weight-bold">Cuentas</h5>
+                        @Html.ListBox("lbxFacturar", new SelectList(ViewBag.ClienteOrigen, "IdCliente", "Nombre", 1), new { @class = "form-control select-success", @style = "height:225px" })
+                        <br />
+
+                        <div class="row">
+                            <div class="col-7">
+                                <h5 class="font-weight-bold">Modo de Pago</h5>
+                                <div id="FacturarModoContainer" class="d-flex">
+                                    @foreach (var item in ViewData["ModoPago"] as IEnumerable<barApp.ModoPago>)
+                                    {
+                                        <div class="form-check form-check-inline mb-2">
+                                            <input id="@item.numPago" name="modoPagoOptions" type="radio" class="form-check-input" value="@item.numPago" @(item == ((IEnumerable<barApp.ModoPago>)ViewData["ModoPago"]).First() ? "checked" : "")>
+                                            <label class="form-check-label" for="@item.numPago">@item.nombre</label>
+                                            <input class="form-control w-50 ml-3 my-1" style="display: none" name="montosFacturar" id="montosFacturar_@item.numPago" data-type="@item.numPago" type="number" step="0.01" min="0" value="0.00">
+                                        </div>
+                                    }
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input id="0" name="modoPagoOptions" type="radio" class="form-check-input" value="0">
+                                        <label class="form-check-label" for="0">Cortesía</label>
+                                    </div>
+                                    <div class="form-check form-check-inline mb-2">
+                                        <input id="-1" name="modoPagoOptions" type="radio" class="form-check-input" value="-1" oninput="FacturarCambiarModo()">
+                                        <label class="form-check-label" for="-1">Combinado</label>
+                                    </div>
+                                </div>
+                                <br />
+
+                                <div>
+                                    <h5 class="d-block mb-2 font-weight-bold">Acciones especiales</h5>
+
+                                    <button id="AplicarDescuentoFacturar" type="button" class="btn btn-info mr-3">Aplicar descuento</button>
+                                    <button id="EnviarCreditoFacturar" type="button" class="btn btn-warning">Enviar a crédito</button>
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <div class="position-relative bg-gray-100 border rounded p-3">
+                                    <div class="d-flex justify-content-between">
+                                        <dl class="mb-0">
+                                            <dt>Subtotal</dt>
+                                            <dd class="mb-3" id="SubtotalFacturar">--</dd>
+                                            <dt class="text-success">Total a pagar</dt>
+                                            <dd class="m-0" id="TotalFacturar">--</dd>
+                                        </dl>
+                                        <dl class="mb-0 ml-4">
+                                            <dt>Descuento</dt>
+                                            <dd id="DescuentoFacturar" class="mb-3">--</dd>
+                                            <dt>Acreditado a</dt>
+                                            <dd id="CreditoFacturar" class="m-0">--</dd>
+                                        </dl>
+                                        <input id="CreditoFacturarInput" type="hidden" />
+                                    </div>
+                                </div>
+                                <br>
+                                @*@Ajax.ActionLink("Re-imprimir", "Reimprimir", null, new AjaxOptions { UpdateTargetId = "ContenedorPrincipal", InsertionMode = InsertionMode.Replace, LoadingElementId = "progress" }, new { @class = "collapse-item" })*@
+                                <span class="fa fa-search pull-right float-right fa-2x"><button type="button" @*data-toggle="modal" data-target="#HistorialFactura"*@ onclick="FacturasClear()" class="btn btn-link pull-right float-right">Facturas</button></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="facturarR" onclick="FacturarPre()">Facturar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*Transferir...................................................................*@
+    <div class="modal fade" id="Transferir" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content border-secondary">
+                <div class="modal-header bg-info text-white align-items-center">
+                    <span class="fas fa-people-arrows fa-3x mr-4"></span>
+                    <h1 class="modal-title font-weight-bold">Transferir cuenta</h1>
+                    <span class="fas fa-times fa-lg p-3" data-dismiss="modal" style="margin: -1rem -1rem -1rem auto; cursor: pointer"></span>
+                </div>
+                <div class="modal-body">
+                    <div class="col mr-2">
+                        <h5 class="font-weight-bold">Camarer@@ Origen</h5>
+                        @Html.DropDownList("VendedoresOrigen", new SelectList(ViewBag.VendedorOrigen, "idUsuario", "nombre", 0), "Seleccionar", new { @class = "form-control", @onchange = "transferir()" })
+                        <br />
+
+                        <h5 class="font-weight-bold">Cuentas</h5>
+                        @Html.ListBox("lbxOrigenTranferir", new SelectList(ViewBag.ClienteOrigen, "IdCliente", "Nombre", 1), new { @class = "form-control select-info", @style = "height:225px" })
+                        <br />
+
+                        <h5 class="font-weight-bold">Camarer@@ Destino</h5>
+                        @Html.DropDownList("VendedoresDestino", new SelectList(ViewBag.VendedorOrigen, "idUsuario", "nombre", 0), "Seleccionar", new { @class = "form-control" })
+                    </div>
+                    <br />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-info" onclick="TransferirReady()">Transferir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*Enlazar...................................................................*@
+    <div class="modal fade" id="Enlazar" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content border-secondary">
+                <div class="modal-header bg-warning text-white align-items-center">
+                    <span class="fas fa-link fa-3x mr-4"></span>
+                    <h1 class="modal-title font-weight-bold">Enlazar cuenta</h1>
+                    <span class="fas fa-times fa-lg p-3" data-dismiss="modal" style="margin: -1rem -1rem -1rem auto; cursor: pointer"></span>
+                </div>
+                <div class="modal-body">
+                    <div class="col mr-2">
+                        <h5 class="font-weight-bold">Camarer@@</h5>
+                        @Html.DropDownList("EnlazarOrigen", new SelectList(ViewBag.VendedorOrigen, "idUsuario", "nombre", 0), "Seleccionar", new { @class = "form-control", @onchange = "Enlazar()" })
+                        <br />
+
+                        <h5 class="font-weight-bold">Cuentas</h5>
+                        @Html.ListBox("lbxOrigenEnlazar", new SelectList(ViewBag.ClienteOrigen, "VendedorId", "Nombre", 1), new { @class = "form-control select-warning", @style = "height:225px" })
+                        <span class="fa fa-arrow-alt-circle-down fa-2x" style="float:initial" onclick=" enlazarCuenta()"></span>
+                        <br />
+
+                        <h5 class="font-weight-bold">Enlazar</h5>
+                        @Html.ListBox("lbxDestinoEnlazar", new SelectList(ViewBag.ClienteOrigen, "VendedorId", "Nombre", 1), new { @class = "form-control", @style = "height:225px" })
+                    </div>
+
+                    <div class="col-lg-6 col-md-6"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" onclick="EnlazarReady()">Enlazar</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @*Codigo administrador...................................................................*@
+    <div class="modal fade" id="Administrador" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content border-secondary">
+                <div class="modal-header bg-success text-white align-items-center">
+                    <span class="fas fa-shopping-cart fa-3x mr-4"></span>
+                    <h1 class="modal-title font-weight-bold">Administrador</h1>
+                    <span class="fas fa-times fa-lg p-3" data-dismiss="modal" style="margin: -1rem -1rem -1rem auto; cursor: pointer"></span>
+                </div>
+                <div class="modal-body">
+
+
+                    <div class="col mr-2">
+                        <h5 class="font-weight-bold">Contrasena</h5>
+                        <input id="CodigoAdmin" type="password" onkeyup="if (event.keyCode === 13) {FacturarValidate() }" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="FacturarValidate()">Continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*Modificar Orden...................................................................*@
+    <div class="modal fade" id="CantidadActulizar" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content border-secondary">
+                <div class="modal-header bg-success text-white align-items-end">
+                    <span class="fas fa-shopping-cart fa-3x mr-4"></span>
+                    <h3 class="modal-title font-weight-bold">Modificar</h3>
+                    <span class="fas fa-times fa-lg p-3" data-dismiss="modal" style="margin: -1rem -1rem -1rem auto; cursor: pointer"></span>
+                </div>
+                <div class="modal-body">
+                    <div class="col mr-2">
+                        <h5 class="font-weight-bold">Cantidad</h5>
+                        <input id="CantidadM" autofocus type="number" onkeyup="if (event.keyCode === 13) {ModificarOrden_() }" class="form-control" />
+                        @*<script>
+                            $('#CantidadM').keyboard({
+                                layout: 'custom',
+                                customLayout: {
+                                    'normal': [
+                                        '1 2 3',
+                                        '4 5 6',
+                                        '7 8 9',
+                                        '{bksp} 0 {a}'
+                                    ]
+                                },
+                                maxLength: 4,
+                                restrictInput: false, // Prevent keys not in the displayed keyboard from being typed in
+                                preventPaste: true,  // prevent ctrl-v and right click
+                                autoAccept: true,
+                                openOn: 'click'
+                            })
+                        </script>*@
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-success" onclick="ModificarOrden_()">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="AdministradorTransferir" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content border-secondary">
+                <div class="modal-header bg-success text-white align-items-center">
+                    <span class="fas fa-shopping-cart fa-3x mr-4"></span>
+                    <h1 class="modal-title font-weight-bold">Administrador</h1>
+                    <span class="fas fa-times fa-lg p-3" data-dismiss="modal" style="margin: -1rem -1rem -1rem auto; cursor: pointer"></span>
+                </div>
+                <div class="modal-body">
+
+
+                    <div class="col mr-2">
+                        <h5 class="font-weight-bold">Contrasena</h5>
+                        <input id="CodigoAdminTransferir" onkeyup="if (event.keyCode === 13) {FacturarValidateTranferir() }" type="password" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="FacturarValidateTranferir()">Continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="AdministradorEnlazar" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content border-secondary">
+                <div class="modal-header bg-success text-white align-items-center">
+                    <span class="fas fa-shopping-cart fa-3x mr-4"></span>
+                    <h1 class="modal-title font-weight-bold">Administrador</h1>
+                    <span class="fas fa-times fa-lg p-3" data-dismiss="modal" style="margin: -1rem -1rem -1rem auto; cursor: pointer"></span>
+                </div>
+                <div class="modal-body">
+
+
+                    <div class="col mr-2">
+                        <h5 class="font-weight-bold">Contrasena</h5>
+                        <input id="CodigoAdminEnlazar" onkeyup="if (event.keyCode === 13) {FacturarValidateEnlazar() }" type="password" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="FacturarValidateEnlazar()">Continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="AdministradorFacturas" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content border-secondary">
+                <div class="modal-header bg-success text-white align-items-center">
+                    <span class="fas fa-shopping-cart fa-3x mr-4"></span>
+                    <h1 class="modal-title font-weight-bold">Administrador</h1>
+                    <span class="fas fa-times fa-lg p-3" data-dismiss="modal" style="margin: -1rem -1rem -1rem auto; cursor: pointer"></span>
+                </div>
+                <div class="modal-body">
+
+
+                    <div class="col mr-2">
+                        <h5 class="font-weight-bold">Contrasena</h5>
+                        <input id="CodigoFactura" onkeyup="if (event.keyCode === 13) {FacturarValidateFacturas() }" type="password" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="FacturarValidateFacturas()">Continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+    @*Historial Factura...................................................................*@
+    <div class="modal fade position-absolute" id="HistorialFactura" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content border-secondary">
+                <div class="modal-header bg-info text-white align-items-center">
+                    <span class="fas fa-print fa-3x mr-4"></span>
+                    <h1 class="modal-title font-weight-bold">Facturas</h1>&nbsp;&nbsp;&nbsp;&nbsp;<span><i id="cargador"></i></span>
+                    <span class="fas fa-times fa-lg p-3" data-dismiss="modal" style="margin: -1rem -1rem -1rem auto; cursor: pointer"></span>
+                </div>
+                <div id="Historial" class="modal-body">
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+    <script src="~/vendor/chart.js/Chart.min.js"></script>
+
+    <script type="text/javascript">
+
+
+
+
+    //dashboard....................................................................
+    var cuentas = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Cuentas));
+    var detalles = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Detalles));
+    var usuarios = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.VendedorOrigen));
+    var chartCuentas;
+    var chartMontos;
+
+    $(function () {
+        let cuentasAbiertas = cuentas.filter(c => !c.ordenFacturada);
+        let cuentasCerradas = cuentas.filter(c => c.ordenFacturada);
+        let cuentasAbiertasIds = cuentasAbiertas.map(c => c.idVenta);
+        let cuentasCerradasIds = cuentasCerradas.map(c => c.idVenta);
+        let montoAbiertas = detalles.filter(c => cuentasAbiertasIds.includes(c.idVenta)).map(c => c.subTotal)?.reduce((p, c) => p + c, 0);
+        let montoCerradas = detalles.filter(c => cuentasCerradasIds.includes(c.idVenta)).map(c => c.subTotal)?.reduce((p, c) => p + c, 0);
+
+        chartCuentas = new Chart($('#cuentas')[0], {
+            type: 'doughnut',
+            data: {
+                labels: ["Abiertas", "Cerradas"],
+                datasets: [{
+                    data: [cuentasAbiertas.length, cuentasCerradas.length],
+                    backgroundColor: ['#4e73df', '#1cc88a'],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }],
+            },
+            options: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 30,
+                        boxWidth: 15,
+                        fontSize: 16,
+                        fontColor: '#5a5c69',
+                        fontStyle: 'bold',
+                        generateLabels: _generateLabels
+                    },
+                    reverse: true
+                },
+                cutoutPercentage: 70,
+                aspectRatio: 2
+            }
+        });
+
+        chartMontos = new Chart($('#montos')[0], {
+            type: 'bar',
+            data: {
+                labels: ["Cerradas", "Abiertas"],
+                datasets: [{
+                    barThickness: 30,
+                    minBarLength: 2,
+                    data: [montoCerradas, montoAbiertas],
+                    backgroundColor: ['#1cc88a', '#4e73df'],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }],
+                isMoney: true
+            },
+            options: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 30,
+                        boxWidth: 15,
+                        fontSize: 16,
+                        fontColor: '#5a5c69',
+                        fontStyle: 'bold',
+                        fullWidth: false,
+                        generateLabels: _generateLabels
+                    }
+                },
+                cutoutPercentage: 70,
+                aspectRatio: 2
+            },
+        });
+    });
+
+    function _generateLabels(chart) {
+        var data = chart.data;
+        if (data.labels.length && data.datasets.length) {
+            return data.labels.map(function (label, i) {
+                let meta = chart.getDatasetMeta(0);
+                let ds = data.datasets[0];
+                let arc = meta.data[i];
+                let custom = arc && arc.custom || {};
+                let getValueAtIndexOrDefault = Chart.helpers.getValueAtIndexOrDefault;
+                let arcOpts = chart.options.elements.arc;
+                let fill = custom.backgroundColor ? custom.backgroundColor : getValueAtIndexOrDefault(ds.backgroundColor, i, arcOpts.backgroundColor);
+                let stroke = custom.borderColor ? custom.borderColor : getValueAtIndexOrDefault(ds.borderColor, i, arcOpts.borderColor);
+                let bw = custom.borderWidth ? custom.borderWidth : getValueAtIndexOrDefault(ds.borderWidth, i, arcOpts.borderWidth);
+                let value = chart.config.data.datasets[arc._datasetIndex].data[arc._index];
+                let isMoney = data.isMoney;
+
+                return {
+                    text: label + ": " + (!isMoney ? value : formatter.format(value)),
+                    fillStyle: fill,
+                    strokeStyle: stroke,
+                    lineWidth: bw,
+                    hidden: isNaN(ds.data[i]) || meta.data[i].hidden,
+                    index: i
+                };
+            });
+        } else {
+            return [];
+        }
+    }
+
+    function ChangeChart(id) {
+        let cuentasAbiertas = cuentas.filter(c => !c.ordenFacturada && c.idUsuario == (id || c.idUsuario));
+        let cuentasCerradas = cuentas.filter(c => c.ordenFacturada && c.idUsuario == (id || c.idUsuario));
+        let cuentasAbiertasIds = cuentasAbiertas.map(c => c.idVenta);
+        let cuentasCerradasIds = cuentasCerradas.map(c => c.idVenta);
+        let montoAbiertas = detalles.filter(c => cuentasAbiertasIds.includes(c.idVenta)).map(c => c.subTotal)?.reduce((p, c) => p + c, 0);
+        let montoCerradas = detalles.filter(c => cuentasCerradasIds.includes(c.idVenta)).map(c => c.subTotal)?.reduce((p, c) => p + c, 0);
+
+        chartCuentas.data.datasets[0].data = [cuentasAbiertas.length, cuentasCerradas.length];
+        chartMontos.data.datasets[0].data = [montoCerradas, montoAbiertas];
+
+        chartCuentas.update();
+        chartMontos.update();
+        $('#ChartSelected').html(id ? usuarios.filter(u => u.idUsuario == id).map(u => u.nombre)[0] : 'Todos');
+    }
+
+    var a = 100;
+    var b = 200;
+    var descuentoPopover;
+    var creditoPopover;
+
+    //cuadre....................................................................
+    function CuadreBegin() {
+        let ventas = cuentas.map(c => c.total).reduce((p, c) => p + c);
+        let gastos = @(ViewBag.GastosTotal);
+        let ganacias = ventas - gastos;
+        let efectivo = @(ViewBag.Efectivo);
+        let depositos = @(ViewBag.Depositos);
+        let tarjetaCredito = @(ViewBag.TarjetaCredito)
+        let credito = @(ViewBag.Credito)
+        let cortesia = @(ViewBag.Cortesia)
+        let descuento = @(ViewBag.Descuento)
+        let CortesiaReal = @(ViewBag.CortesiaReal)
+
+        $('#VentasCuadre').text(formatter.format(ventas -cortesia-  descuento));
+        $('#GastosCuadre').text(formatter.format(gastos));
+        $('#GananciasCuadre').text(formatter.format(ganacias));
+        $('#VentasEfectivo').text(formatter.format(efectivo-gastos));
+        $('#VentasDepositos').text(formatter.format(depositos));
+        $('#VentasCredito_Debito').text(formatter.format(tarjetaCredito));
+        $('#VentasEnviadoCredito').text(formatter.format(credito));
+        $('#VentasCortesia').text(formatter.format(CortesiaReal));
+        $('#VentaDescuentos').text(formatter.format(descuento));
+
+    }
+
+        function CuadreReady() {
+                    
+        $("#enviarCierre").prop('disabled', true);
+            var arqueo = {}
+
+            arqueo.Eectivo = $("#efectivo_").val()
+            arqueo.Deposito = $("#deposito_").val()
+            arqueo.Tarjeta = $("#credito_").val()
+            arqueo.Nota = $("#nota_").val()
+            arqueo.VentasCuadre = $("#VentasCuadre").text()
+            arqueo.cortesiaReal =  $("#VentasCortesia").text()
+
+        $.ajax({
+            url: "../Home/Cuadrar",
+            type: "POST",
+            contentType: 'application/json;charset=UTF-8',
+            dataType: 'json',
+           data: JSON.stringify(arqueo),
+            success: function (response) {
+                if (response.Tipo == "Ready") {
+                    window.alert(response.Mensaje);
+                    location.reload();
+                }
+                else if (response.Tipo == "Notificacion") {
+                    window.alert(response.Mensaje);
+                           $("#enviarCierre").prop('disabled', false);
+                }
+                else if (response.Tipo == "Error") {
+                    window.alert(response.Mensaje);
+                  $("#enviarCierre").prop('disabled', false);
+                }
+            }
+        });
+    }
+
+    //facturar....................................................................
+    function FacturarBegin() {
+        $('#lbxFacturar').change(FacturarHandleChange);
+        $('input[name=modoPagoOptions]').change(FacturarHandleChange);
+        $('input[name=modoPagoOptions]').change(FacturarCambiarModo);
+        descuentoPopover = $('#AplicarDescuentoFacturar').popover({
+            placement: 'top',
+            html: true,
+            title: 'Descuento',
+            sanitize: false,
+            content: function () {
+                creditoPopover.popover('hide');
+
+                return (
+                    '<div class="d-flex">' +
+                        `<input id="TempDescuento" class="form-control d-inline" type="number" step="1" min="0" max="50 " value="` + $('#DescuentoFacturar').text().replace(/[^\d]/g, '') + `">` +
+                        `<button type="button" class="btn btn-info d-inline ml-3" onclick="FacturarHandleChange()">Aplicar</button>` +
+                    '</div>'
+                );
+            }
+        });
+        creditoPopover = $('#EnviarCreditoFacturar').popover({
+            placement: 'top',
+            html: true,
+            title: 'Descuento',
+            sanitize: false,
+            content: function () {
+                descuentoPopover.popover('hide');
+
+                let clone = $("#UsuariosFacturar").clone();
+                clone.prop('id', 'TempCredito');
+                clone.removeClass('d-none');
+                let select = $('<div />').append(clone);
+
+                setTimeout(() => { $('#TempCredito').val($('#CreditoFacturarInput').val()) }, 0);
+
+                return '<div class="d-flex">' + $(select).html() + '</div>';
+            }
+        });
+
+        FacturarClear();
+    }
+
+    function FacturarClear() {
+        $("#lbxFacturar").empty();
+        $('#NumOrdenFacturar').val('');
+        $('#VendedorFacturar').prop('selectedIndex', 0);
+        $('#SubtotalFacturar').text('--');
+        $('#TotalFacturar').text('--');
+        $('#DescuentoFacturar').text('--');
+        $('#CreditoFacturar').text('--');
+        $('#CreditoFacturarInput').val(undefined);
+    }
+
+    function Facturar() {
+        var Usuario = {}
+
+        var y = document.getElementById("VendedorFacturar");
+        var x = document.getElementById("lbxFacturar");
+        var docfrag = document.createDocumentFragment();
+
+        Usuario.idUsuario = y.options[y.selectedIndex].value;
+        $("#lbxFacturar").empty();
+
+        $.ajax({
+            url: "../Home/FacturarCuenta",
+            data: JSON.stringify(Usuario),
+            type: "POST",
+            contentType: 'application/json;charset=UTF-8',
+            dataType: 'json',
+            success: function (Transferir) {
+                for (var Clientes of Transferir) {
+                    docfrag.appendChild(new Option(Clientes.nombre, Clientes.idCliente));
+                }
+
+                x.appendChild(docfrag);
+                FacturarHandleChange();
+            },
+        });
+    }
+
+    $('#NumOrdenFacturar').keyup(function () {
+         $("#lbxFacturar").empty();
+            var docfrag = document.createDocumentFragment();
+            var x = document.getElementById("lbxFacturar");
+         if (event.keyCode === 13) {
+
+           var Venta = {}
+
+        var noVenta = document.getElementById("NumOrdenFacturar").value;
+
+        if (noVenta) {
+
+            Venta.idVenta = noVenta;
+
+
+        $.ajax({
+            url: "../Home/FacturarCuentaNoOrden",
+            data: JSON.stringify(Venta),
+            type: "POST",
+            contentType: 'application/json;charset=UTF-8',
+            dataType: 'json',
+            success: function (Transferir) {
+                for (var Clientes of Transferir) {
+                    docfrag.appendChild(new Option(Clientes.nombre, Clientes.idCliente));
+                }
+
+                x.appendChild(docfrag);
+                FacturarHandleChange();
+            },
+        });
+
+        }
+        else {
+
+            alert("Digite numero de orden")
+        }
+
+         }
+
+
+
+
+
+
+          }
+        )
+
+    function FacturarHandleChange() {
+        if ($("select#lbxFacturar option:selected").length != 1) {
+            $("#lbxFacturar").get(0).selectedIndex = -1;
+            $('#NumOrdenFacturar').val('');
+            $('#SubtotalFacturar').text('--');
+            $('#TotalFacturar').text('--');
+            $('#DescuentoFacturar').text('--');
+            $('#CreditoFacturar').text('--');
+            $('#CreditoFacturarInput').val(undefined);
+            $('input[name=montosFacturar]').val('0.00');
+            descuentoPopover.popover('hide');
+            creditoPopover.popover('hide');
+            return;
+        }
+
+        let descuentoInput = $('#TempDescuento');
+        let creditoInput = $('#TempCredito option:selected');
+
+        if (descuentoInput.length) {
+            $('#DescuentoFacturar').text(descuentoInput.val() + '%');
+            descuentoPopover.popover('hide');
+        }
+
+        if (creditoInput.length) {
+            $('#CreditoFacturar').text(creditoInput.val() ? creditoInput.text() : '--');
+            $('#CreditoFacturarInput').val(creditoInput.val() ? creditoInput.val() : undefined);
+            creditoPopover.popover('hide');
+        }
+
+        let selected = $($("select#lbxFacturar option:selected")[0]);
+        let modo = $('input[name=modoPagoOptions]:checked').val();
+
+        let monto = selected.text().split(' -- ')[2];
+        let montoNumber = parseFloat(monto?.replace(/[^\d\.]/g, ''));
+        let descuento = parseFloat($('#DescuentoFacturar').text().replace(/[^\d]/g, '')) / 100;
+        let totalDescontar = montoNumber * (isNaN(descuento) ? 0 : descuento);
+        let total = (modo == 0 ? 0 : (montoNumber - totalDescontar));
+
+
+        $('#NumOrdenFacturar').val(selected.val());
+        $('#SubtotalFacturar').text(monto);
+        $('#TotalFacturar').text(formatter.format(total));
+    }
+
+    function FacturarCambiarModo() {
+        if ($(this).val() == -1) {
+            $('input[name=montosFacturar]').each((i, e) => {
+                $(e).show();
+            });
+
+            $('#FacturarModoContainer').addClass('flex-column');
+        } else {
+            $('input[name=montosFacturar]').each((i, e) => {
+                $(e).hide();
+            });
+
+            $('#FacturarModoContainer').removeClass('flex-column');
+        }
+    }
+
+    function FacturarPre() {
+        let descuento = parseFloat($('#DescuentoFacturar').text().replace(/[^\d]/g, ''));
+
+        if (descuento > 0 || $('#CreditoFacturarInput').val() || $("#0").is(":checked")) {
+             setTimeout(function() {
+          $("#CodigoAdmin").focus();
+             }, 500);
+                   $('#CodigoAdmin').val("")
+            $('#Administrador').modal('show');
+        } else {
+            FacturarReady();
+        }
+    }
+
+    function FacturarValidate() {
+        $.ajax({
+            url: "../Login/IsAdmin",
+            type: "POST",
+            data: JSON.stringify({ code: $('#CodigoAdmin').val() }),
+            contentType: 'application/json;charset=UTF-8',
+            dataType: 'json',
+            success: function (response) {
+                if (response.Tipo == "Ready") {
+                    FacturarReady();
+                }
+                else if (response.Tipo == "Notificacion") {
+                    alert(response.Mensaje);
+                }
+                else if (response.Tipo == "Error") {
+                    alert(response.Mensaje);
+                }
+            }
+        });
+    }
+
+    function FacturarValidateTranferir() {
+        $.ajax({
+            url: "../Login/IsAdmin",
+            type: "POST",
+            data: JSON.stringify({ code: $('#CodigoAdminTransferir').val() }),
+            contentType: 'application/json;charset=UTF-8',
+            dataType: 'json',
+            success: function (response) {
+                if (response.Tipo == "Ready") {
+                    //FacturarReady();
+                    $('#CodigoAdminTransferir').val("")
+                   $("#AdministradorTransferir").modal("hide")
+                    $("#Transferir").modal("show")
+                }
+                else if (response.Tipo == "Notificacion") {
+                    alert(response.Mensaje);
+                }
+                else if (response.Tipo == "Error") {
+                    alert(response.Mensaje);
+                }
+            }
+        });
+    }
+
+     function FacturarValidateEnlazar() {
+        $.ajax({
+            url: "../Login/IsAdmin",
+            type: "POST",
+            data: JSON.stringify({ code: $('#CodigoAdminEnlazar').val() }),
+            contentType: 'application/json;charset=UTF-8',
+            dataType: 'json',
+            success: function (response) {
+                if (response.Tipo == "Ready") {
+                    //FacturarReady();
+                    $('#CodigoAdminEnlazar').val("")
+                    $("#AdministradorEnlazar").modal("hide")
+                    $("#Enlazar").modal("show")
+                }
+                else if (response.Tipo == "Notificacion") {
+                    alert(response.Mensaje);
+                }
+                else if (response.Tipo == "Error") {
+                    alert(response.Mensaje);
+                }
+            }
+        });
+    }
+
+        function FacturarReady() {
+
+
+        let x = document.getElementById("lbxFacturar");
+        let y = document.getElementById("VendedorFacturar");
+
+        if (x && y && y.selectedIndex >= 1) {
+            let venta = {
+                idVenta: x.options[x.selectedIndex].value,
+                Factura: []
+            }
+            let modo = $('input[name=modoPagoOptions]:checked').val();
+            let selected = $($("select#lbxFacturar option:selected")[0]);
+            let monto = selected.text().split(' -- ')[2];
+            let montoNumber = parseFloat(monto?.replace(/[^\d\.]/g, ''));
+            let descuento = parseFloat($('#DescuentoFacturar').text().replace(/[^\d]/g, '')) / 100;
+            let totalDescontar = montoNumber * (isNaN(descuento) ? 0 : descuento);
+            let total = (modo == 0 ? 0 : (montoNumber - totalDescontar));
+
+            if (modo == -1) {
+                if ([...$('input[name=montosFacturar]').map((_, e) => parseFloat(e.value))].reduce((p, c) => p + c) == total) {
+                    $('input[name=montosFacturar]').each((_, element) => {
+                        venta.Factura.push({
+                            idVenta: x.options[x.selectedIndex].value,
+                            total: element.value,
+                            numPago: element.getAttribute('data-type'),
+                            descuento: descuento * 100,
+                            idUsuario: $('#CreditoFacturarInput').val()
+                        });
+                    });
+                } else {
+                    alert('Los montos no coinciden con el total a pagar');
+                    return
+                }
+            } else {
+                venta.Factura.push({
+                    idVenta: x.options[x.selectedIndex].value,
+                    total: total,
+                    numPago: modo,
+                    descuento: descuento * 100,
+                    idUsuario: $('#CreditoFacturarInput').val()
+                });
+            }
+        $("#facturarR").prop('disabled', true);
+            $.ajax({
+                url: "../Home/FacturarReady",
+                type: "POST",
+                data: JSON.stringify(venta),
+                contentType: 'application/json;charset=UTF-8',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.Tipo == "Ready") {
+                        $('#Administrador').modal('hide');
+                        $("#lbxFacturar option:selected").remove();
+                        FacturarHandleChange();
+
+                        alert(response.Mensaje);
+                        $("#facturarR").prop('disabled', false);
+                        $("#1").prop("checked", true);
+                    }
+                    else if (response.Tipo == "Notificacion") {
+                        alert(response.Mensaje);
+                                 $("#facturarR").prop('disabled', false);
+                    }
+                    else if (response.Tipo == "Error") {
+                        alert(response.Mensaje);
+                            $("#facturarR").prop('disabled', false);
+                    }
+                }
+            });
+        }
+    }
+
+    //transferir....................................................................
+    function TransferirClear() {
+      setTimeout(function() {
+          $("#CodigoAdminTransferir").focus();
+      }, 500);
+        $("#lbxOrigenTranferir").empty();
+        $('#VendedoresOrigen').prop('selectedIndex', 0);
+        $('#VendedoresDestino').prop('selectedIndex', 0);
+
+        $("#AdministradorTransferir").modal("show")
+
+
+    }
+
+    function transferir() {
+
+        var Usuario = {}
+
+        var y = document.getElementById("VendedoresOrigen");
+        var x = document.getElementById("lbxOrigenTranferir");
+        var option = document.createElement("option");
+        var docfrag = document.createDocumentFragment();
+        Usuario.idUsuario = y.options[y.selectedIndex].value;
+
+        $("#lbxOrigenTranferir").empty();
+        $.ajax({
+            url: "../Home/TransferirCuenta",
+            data: JSON.stringify(Usuario),
+            type: "POST",
+            contentType: 'application/json;charset=UTF-8',
+            dataType: 'json',
+            success: function (Transferir) {
+
+                for (var Clientes of Transferir) {
+
+                    docfrag.appendChild(new Option(Clientes.nombre, Clientes.idCliente));
+                    //option.text = Clientes.Vendedor
+                    //option.value = Clientes.VendedorId;
+                    //x.options.add(option);
+                }
+                x.appendChild(docfrag);
+
+            },
+
+        });
+    }
+
+    function TransferirReady() {
+
+        var x = document.getElementById("lbxOrigenTranferir");
+        var y = document.getElementById("VendedoresDestino");
+
+        var Venta = {};
+
+        if (x) {
+            if (y) {
+                if (y.selectedIndex >= 1) {
+
+                    Venta.idUsuario = y.options[y.selectedIndex].value
+                    Venta.idVenta = x.options[x.selectedIndex].value
+
+                    $.ajax({
+                        url: "../Home/TransferirReady",
+                        type: "POST",
+                        data: JSON.stringify(Venta),
+                        contentType: 'application/json;charset=UTF-8',
+                        dataType: 'json',
+                        success: function (response) {
+
+                            if (response.Tipo == "Ready") {
+
+                                $("#lbxOrigenTranferir option:selected").remove();
+                                window.alert(response.Mensaje);
+                            }
+                            else if (response.Tipo == "Notificacion") {
+                                window.alert(response.Mensaje);
+                            }
+                            else if (response.Tipo == "Error") {
+                                window.alert(response.Mensaje);
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    //Enlazar....................................................................
+    function EnlazarClear() {
+              setTimeout(function() {
+          $("#CodigoAdminEnlazar").focus();
+      }, 500);
+
+        $("#lbxDestinoEnlazar").empty();
+        $("#lbxOrigenEnlazar").empty();
+        $('#EnlazarOrigen').prop('selectedIndex', 0);
+
+        $("#AdministradorEnlazar").modal("show")
+
+
+    }
+
+    function Enlazar() {
+        $("#lbxDestinoEnlazar").empty();
+        var y = document.getElementById("EnlazarOrigen");
+        var x = document.getElementById("lbxOrigenEnlazar");
+        var option = document.createElement("option");
+        var docfrag = document.createDocumentFragment();
+
+        var Usuario = {}
+
+        Usuario.idUsuario = y.options[y.selectedIndex].value;
+
+        $("#lbxOrigenEnlazar").empty();
+        $.ajax({
+            url: "../Home/TransferirCuenta",
+            data: JSON.stringify(Usuario),
+            type: "POST",
+            contentType: 'application/json;charset=UTF-8',
+            dataType: 'json',
+            success: function (Transferir) {
+
+                for (var Clientes of Transferir) {
+
+                    docfrag.appendChild(new Option(Clientes.nombre, Clientes.idCliente));
+                    //option.text = Clientes.Vendedor
+                    //option.value = Clientes.VendedorId;
+                    //x.options.add(option);
+                }
+                x.appendChild(docfrag);
+            },
+        });
+    }
+
+    function EnlazarReady() {
+        var ListadoEnlazar = [];
+
+        var y = document.getElementById("lbxDestinoEnlazar").childNodes;
+        var contador = 0;
+
+        for (var destinoEnlazar of y) {
+            ListadoEnlazar[contador] = destinoEnlazar.value
+            contador++
+        }
+
+        $.ajax({
+            url: "../Home/EnlazarReady",
+            type: "POST",
+            async: false,
+            data: { ListadoEnlazar: ListadoEnlazar },
+            success: function (response) {
+                if (response.Tipo == "Ready") {
+                    $("#lbxDestinoEnlazar").empty();
+                    window.alert(response.Mensaje);
+                }
+                else if (response.Tipo == "Error") {
+                    window.alert(response.Mensaje);
+                }
+                else {
+                    window.alert("Error Desconocido");
+                }
+            }
+        })
+    }
+
+    function enlazarCuenta() {
+        var y = document.getElementById("lbxOrigenEnlazar");
+        var x = document.getElementById("lbxDestinoEnlazar");
+
+        if (y) {
+            if (y.selectedIndex >= 0) {
+                var option = document.createElement("option");
+                option.text = y.options[y.selectedIndex].text;
+                option.value = y.value;
+                x.add(option);
+                $("#lbxOrigenEnlazar option:selected").remove();
+
+            }
+        }
+    }
+
+
+
+
+           function FacturarValidateFacturas() {
+        $.ajax({
+            url: "../Login/IsAdmin",
+            type: "POST",
+            data: JSON.stringify({ code: $('#CodigoFactura').val() }),
+            contentType: 'application/json;charset=UTF-8',
+            dataType: 'json',
+            success: function (response) {
+                if (response.Tipo == "Ready") {
+                    //FacturarReady();
+                    HistorialFactura();
+                }
+                else if (response.Tipo == "Notificacion") {
+                    alert(response.Mensaje);
+                }
+                else if (response.Tipo == "Error") {
+                    alert(response.Mensaje);
+                }
+            }
+        });
+    }
+
+
+
+
+          function FacturasClear() {
+              setTimeout(function () {
+              
+                  $("#CodigoFactura").focus();
+              }, 500);
+       
+                $("#AdministradorFacturas").modal("show")
+
+
+            }
+
+        function HistorialFactura() {
+
+
+           $('#cargador').show()
+            $('#cargador').addClass('fa fa-spinner fa-spin')
+
+        $.ajax({
+            url: "../Home/Reimprimir",
+            success: function (response) {
+                $('#cargador').hide()
+                $('#Historial').html(response)
+                 $("#CodigoFactura").val("")
+                    $("#AdministradorFacturas").modal("hide")
+                  $("#HistorialFactura").modal("show")
+            }, Error: function () {$('#cargador').hide()}
+
+
+
+    });
+
+        }
+
+        function Modificardetalleventa(id, idv) {
+
+                       
+       var  confirmar = prompt("(Modificar Orden) Nueva Cantidad?")
+                    
+
+            if (confirmar) {
+
+                  var confirmarValida = parseInt(confirmar)
+
+
+                if (confirmarValida)
+                {                                                         
+
+                    $('#cargador').show()
+                    $.ajax({
+                        type: "POST",
+                        url: "../Home/ModificarProductoCarrito",
+                        data: JSON.stringify({ idDetalle: id, idventa: idv, cantidad_: confirmarValida }),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "html",
+                        success: function (response) {
+
+                            if (response == '{"error":"Error"}') {
+                                $('#cargador').hide()
+                                alert("La cantidad debe ser mayor de cero y menor a la existente")
+                                return;
+                            }
+                            else {
+                                $('#cargador').hide()
+                                $('#Historial').html(response)
+                            }
+
+
+                            //element.parents("tr").fadeOut("normal", function () {
+                            //    element.parents("tr").remove();
+
+                            //    restar();           
+
+                            //});
+                        }, Error: function (response) {
+                            $('#cargador').hide()
+                            alert(response);
+                        }
+                        //},
+                        //failure: function (response) {
+                        //    alert(response.responseText);
+                        //},
+                        //error: function (response) {
+                        //    alert(response.responseText);
+                        //}
+                    });
+
+                }
+                else {
+                    alert("Formato incorrecto")
+                }
+            }
+            else {
+             
+            }
+           
+        }
+
+
+        function Eliminardetalleventa(id, idv) {
+
+      
+                                       
+
+                    $('#cargador').show()
+                    $.ajax({
+                        type: "POST",
+                        url: "../Home/EliminarProductoCarrito",
+                        data: JSON.stringify({ idDetalle: id, idventa: idv })
+                        ,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "html",
+                        success: function (response) {
+                            $('#cargador').hide()
+                            $('#Historial').html(response)
+                            //element.parents("tr").fadeOut("normal", function () {
+                            //    element.parents("tr").remove();
+
+                            //    restar();           
+
+                            //});
+                        }, Error: function () { $('#cargador').hide() }
+                        //},
+                        //failure: function (response) {
+                        //    alert(response.responseText);
+                        //},
+                        //error: function (response) {
+                        //    alert(response.responseText);
+                        //}
+                    });
+          
+
+        }
+
+
+
+        function Prefacturar(idVenta) {
+
+             let data = {
+            id: idVenta
+        }
+
+
+        $.ajax({
+            type: "POST",
+            url: "../Home/Prefacturar",
+            data: JSON.stringify(data),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response==1) {
+                     alert('Prefactura impresa con éxito');
+                //location.reload();
+                }
+                else {
+                //     alert('Orden no tiene ventas, se a cerrado automaticamente');
+                //location.reload();
+                }
+
+            },
+            error: function (request) {
+                alert(request.responseText);
+            }
+        });
+        }
+
+
+        $('#montosFacturar_1').keyup(function () {
+
+
+            var efectivo = $('#montosFacturar_1').val()
+
+            var TotalPagar = $('#TotalFacturar').text()
+
+         var temp = TotalPagar.replace(/[^0-9.-]+/g,"");
+        
+
+            var Tarjeta = parseFloat(temp) - parseFloat(efectivo)
+
+             $('#montosFacturar_2').val(Tarjeta.toString())
+
+
+           // alert(Tarjeta.toString())
+
+      
+        });
+
+    </script>
+
+
+    <style>
+        .buttonload {
+            background-color: #04AA6D; /* Green background */
+            border: none; /* Remove borders */
+            color: white; /* White text */
+            padding: 12px 24px; /* Some padding */
+            font-size: 16px; /* Set a font-size */
+        }
+
+        /* Add a right margin to each icon */
+        .fa {
+            margin-left: -12px;
+            margin-right: 8px;
+        }
+    </style>

@@ -1,0 +1,145 @@
+﻿@model IEnumerable<barApp.Venta>
+
+
+
+@if (Model != null)
+{
+    <table class="table table-bordered dataTable w-100" id="dataTableVentas" cellspacing="0" role="grid">
+
+        <tr class="odd">
+            <th>
+                No.Venta
+            </th>
+            <th>
+                Vended@@r
+            </th>
+            <th>
+                No.Cuadre
+            </th>
+            <th>
+                Pago
+            </th>
+            <th>
+                Descuento
+            </th>
+            <th>
+                Total Pagado
+            </th>
+
+            <th>Fecha</th>
+
+            <th>Detalles</th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+
+
+    <tr class="odd">
+
+        <td>
+            @item.idVenta.ToString("0")
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Usuario.nombre)
+        </td>
+        <td>
+            @item.idCuadre
+        </td>
+
+        <td>
+
+            @foreach (var item1 in @ViewBag.tipopago)
+            {
+
+                if (item.Factura.Count > 1)
+                {
+                    <span>Combinado  </span>
+                }
+                else
+                {
+                    if (item1.numPago == item.Factura.Single().numPago)
+                    {
+
+                        @item1.nombre;
+
+
+                        // item1.nombre
+
+                    }
+                }
+
+
+
+            }
+
+
+
+        </td>
+
+        <td>
+            @{
+                string descuento = "";
+
+                if (item.Factura.Count > 1)
+                {
+                    var des = string.IsNullOrEmpty(item.Factura.First().ToString()) ? "0": item.Factura.First().descuento.ToString();
+
+
+                    descuento = des;
+
+                }
+                else
+                {
+                    descuento = string.IsNullOrEmpty(item.Factura.Single().descuento.ToString()) ? "0" : item.Factura.Single().descuento.ToString();
+                }
+
+                @descuento
+
+
+
+            }
+
+        </td>
+
+
+            <td>
+
+                @item.total.ToString("$#,0.00")
+
+            </td>
+
+            <td>
+
+                @item.Cuadre.fecha.Value.ToShortDateString()
+
+            </td>
+
+            <td>
+
+                <button data-toggle="modal" onclick="myfunction(@item.idVenta)" class="btn btn-link" data-target="#DetallesVenta"> <i class="fa fa-search fa-1x text-secondary"></i> </button>
+
+                @*@Ajax.ActionLink(" ", "IndexDetalles", "Orden", new { id = item.idVenta }, new AjaxOptions()
+                {
+                    HttpMethod = "POST",
+                    UpdateTargetId = "Contenedor",
+                    InsertionMode = InsertionMode.Replace,
+                    LoadingElementId = "progress",
+
+                    //OnBegin = "onBeginAjax",
+                    //OnComplete = "onCompleteAjax",
+                    OnSuccess = "onSuccessEliminar",
+                    OnFailure = "onFailureAjax",
+                }, new { @class = "fa fa-search fa-1x text-secondary" })*@
+            </td>
+            @*<td>
+                @Html.DisplayFor(modelItem => item.MontoRestante)
+            </td>*@
+
+        </tr>
+
+        }
+
+    </table>
+}
+

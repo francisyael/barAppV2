@@ -1,0 +1,157 @@
+﻿
+@model barApp.Producto
+
+@*@using (Ajax.BeginForm("CrearProductoEspeciales", FormMethod.Post, new AjaxOptions { LoadingElementId = "Progress", InsertionMode = InsertionMode.Replace, UpdateTargetId = "Contenedor", OnSuccess = "onSuccessEditarEspeciales", OnFailure = "onFailureAjax" }))
+    {*@
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <div class="form-group  mb-4">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="col-md-4">
+                @Html.EditorFor(model => model.idProducto, new { htmlAttributes = new { @class = "form-control", @required = "required", id = "idProductoES", @readonly = "readonly" } })
+            </div>
+        </div>
+
+        <div class="form-group  mb-4">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.nombre, new { htmlAttributes = new { @class = "form-control", @required = "required", id = "nombreES", @readonly = "readonly" } })
+            </div>
+        </div>
+
+        <div class="form-group  mb-4">
+            <div class="input-group md-10">
+                &nbsp;&nbsp;@Html.DropDownList("idCategoria", new SelectList((System.Collections.IEnumerable)ViewData["TipoProducto"], "idProducto", "nombre"), "Seleccionar Productos", htmlAttributes: new { @class = "form-control", @required = "required", style = "font-weight:600", id = "ddlIdProducto" })
+
+            </div>
+        </div>
+
+    
+
+        <div class="form-group  mb-4">
+            @Html.Label("cantidad", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.idProductoEspecialCantidad, new { htmlAttributes = new { @class = "form-control", @required = "required", type="number", id = "cantidadC" } })
+                @Html.ValidationMessageFor(model => model.idProductoEspecialCantidad, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="CrearProdEspeciales() ">Agregar</button>
+            </div>
+        </div>
+    </div>
+}
+
+<span>***COMBO***</span> 
+<span style="float:right; stop-color:red;"><input type="button" name="name" value="Eliminar Productos" onclick="EliminarCombo()" /></span>
+<div id="Listap">
+    @{Html.Partial("ListaProductoEspecial");}
+</div>
+
+<script>
+    function CrearProdEspeciales() {
+
+        if ($('#ddlIdProducto').val().toString() != "") {
+
+            if ( $('#cantidadC').val()) {
+
+                 $("#Listap tr").remove()
+
+                var Producto = {}
+
+                Producto.idProducto = $('#idProductoES').val();
+                Producto.idProductoEspecialCantidad = $('#cantidadC').val();
+                Producto.idProductoEspecial = $('#ddlIdProducto').val()
+
+                $.ajax({
+                    type: "POST",
+                    url: "../Home/CrearProductoEspeciales",
+                    data: JSON.stringify(Producto),
+                    contentType: "application/json; charset=utf-8",
+                    async: false,
+                    success: function (Response) {
+
+                        $("#Listap").html(Response);
+                        alert("Producto agregado a especial")
+
+
+
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+
+
+
+
+            }
+            else {
+                 alert("Seleccione Cantidad")
+            }
+        }
+        else {
+
+            alert("Seleccione Producto")
+        }
+
+       
+
+
+
+
+    };
+
+    function EliminarCombo() {
+
+
+        if ( $("#Listap tr").length > 0) {
+            var Producto = {}
+
+        Producto.idProducto = $('#idProductoES').val();
+
+          $.ajax({
+                    type: "POST",
+                    url: "../Home/EliminarCombo",
+                    data: JSON.stringify(Producto),
+                    contentType: "application/json; charset=utf-8",
+                    async: false,
+                    success: function (Response) {
+
+                        $("#Listap").html(Response);
+                        alert("Combo eliminado exitosamente")
+
+
+
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+        }
+        else {
+            alert("Combo no tiene productos agregados")
+        }
+
+        
+    }
+
+
+</script>
+
+
+

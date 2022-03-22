@@ -1,0 +1,133 @@
+﻿@{string nombre ="Nada";
+    float total = 0;
+    decimal  idventa = 0; }
+
+
+<div id="ListaCliente" onload="ClienteAgregado()">
+    <div class="row">
+        <div id="mySidenav" class="sidenav">
+            <br />
+            <br /> 
+            @*<a href="javascript:void(0)" class="navbar-brand pull-right" style="color:antiquewhite" onclick="closeNav()">X</a>*@
+            <span class="text-white">Ordenes:</span>
+            <br />
+            @*<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>*@
+
+
+            @*@using (Ajax.BeginForm("Index", "Orden", new AjaxOptions { HttpMethod = "POST", UpdateTargetId = "DivUserList", LoadingElementId = "progress", InsertionMode = InsertionMode.Replace }))
+        {*@
+
+            @foreach (var item in (ViewData["ListadoClienteOrdenar"] as IEnumerable<Venta>))
+            {
+
+                <button name="btnCliente" onclick="mostrarCliente('@item.Cliente.nombre',@item.total,@item.idVenta )" value=@item.idVenta>@item.Cliente.nombre.ToUpper() (M-@item.Cliente.idMesa.ToString())</button>
+
+                nombre = item.Cliente.nombre;
+                total = item.total;
+                idventa = item.idVenta;
+
+               
+            }
+
+            @*}*@
+
+        </div>
+    </div>
+</div>
+   
+<script>
+    document.getElementById("mySidenav").style.width = "350px";
+
+    function ClienteAgregado() {
+
+  
+
+      
+                mostrarCliente('@nombre.ToString()', @total, @idventa)
+        
+
+     
+   
+    }
+
+</script>
+
+
+<style>
+
+    a {
+  text-decoration: none;
+  color: #008CBA;
+}
+
+    body {
+        font-family: "Lato", sans-serif;
+    }
+
+    .sidebar {
+        height: 100%;
+        width: 0;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: #111;
+        overflow-x: hidden;
+        transition: 0.5s;
+        padding-top: 60px;
+    }
+
+        .sidebar a {
+            padding: 8px 8px 8px 32px;
+            text-decoration: none;
+            font-size: 25px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+
+        }
+
+            .sidebar a:hover {
+                color: #f1f1f1;
+            }
+
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+
+    .openbtn {
+        font-size: 20px;
+        cursor: pointer;
+        background-color:#008CBA;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+    }
+
+        .openbtn:hover {
+            background-color: #444;
+        }
+
+    #main {
+        transition: margin-left .5s;
+        padding: 16px;
+    }
+</style>
+
+<script>
+
+    function openNav() {
+  document.getElementById("mySidenav").style.width = "350px";
+        document.getElementById("main").style.marginLeft = "350px";
+         
+}
+
+function closeNav() {
+  document.getElementById("mySidenav").style.width = "0";
+  document.getElementById("main").style.marginLeft= "0";
+}
+</script>

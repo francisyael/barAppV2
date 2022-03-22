@@ -1,0 +1,288 @@
+﻿
+
+<link href="~/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+
+<div class="card mb-4 py-md-3 border-right-0 text-center">
+    <h1 class="h3 mb-0 text-gray-800">Inventario</h1>
+  
+</div>
+
+
+<div class="card shadow mb-4">
+    @*<div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary"> <a  class="btn btn-info right" href="#Almacen" name="name" data-toggle="modal pill" data-target="#NuevaEntradaInventario">Entradaa</a></h6>
+
+        </div>*@
+    <div class="card-header py-3">
+
+        <ul class="nav nav-pills" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="btn btn-info right" data-toggle="pill" href="#Almacen" onclick="NuevaEntradaInventario()">Entrada</a>
+            </li>
+            &nbsp;  &nbsp;
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" data-toggle="pill" href="#Almacen" onclick="InventarioAlmacen()" role="tab">Almacen</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-toggle="pill" href="#Almacen" onclick="InventarioBar()" role="tab">Bar</a>
+            </li>
+        </ul>
+
+
+    </div>
+
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="Almacen" role="tabpanel">
+                        <div class="col-sm-12 col-md-6 float-right">
+                            <div id="dataTable_filter" class="dataTables_filter">
+                               
+                                <label>Buscar:<input type="search" id="Search" onkeyup="SearchTable()" class="form-control form-control-sm" placeholder="" aria-controls="dataTable"></label>
+
+                            </div>
+                        </div>
+
+                        <div id="Contenedor">
+                            @{Html.RenderPartial("ListaInventario", ViewData["ListaInventario"] as IEnumerable<barApp.Models.Inventario>);}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*Modal Crear Inventario....................................................................*@
+
+<div class="modal fade" id="NuevaEntradaInventario" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle"><span class="fa-2x">Entrada de Producto (Almacen)</span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                @{Html.RenderPartial("CrearEntradaInventario", new ViewDataDictionary { { "Producto", ViewData["Producto"] }, { "Suplidor", ViewData["Suplidor"] } });}
+
+            </div>
+
+            @*<div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Guarda</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+@*Modal Editar Transferir....................................................................*@
+
+<div class="modal fade" id="ModalTransferirProductoABAR" tabindex="-1" role="dialog" aria-labelledby="ModalTransferirProductoABAR" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle"><span class="fa-2x">Transferir Producto a (Bar/Hookah)</span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                @{Html.RenderPartial("TransferirProductoABAR", ViewData["Producto"] as IEnumerable<Producto>);}
+
+            </div>
+            @*<div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Guarda</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+
+    function ImprirmiEntradaInventario() {
+
+        $.ajax({
+            type: "POST",
+            url: "../Home/ImprimirEntradaAlmacen",
+           // data: JSON.stringify(Inventario),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+
+                if (response == "Si") {
+                   
+                    alert("Impresion de entradas realizada con exito")
+                  
+                } else {
+                    alert("No existen entradas de fecha de hoy");
+                }
+            
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+
+    };
+    
+
+    //buscar categoria...............................................................
+    function SearchTable() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("Search");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("dataTable");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[1];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+    //editar Categoria.............................................................
+    function myfunction() {
+        var Id
+
+        var Inventario = {}
+
+
+        $("#dataTable tr").click(function () {
+            Inventario.IdProducto = $(this).find("td:first").text().trim();
+            if (Id) {
+
+            }
+            else {
+
+                $.ajax({
+                    type: "POST",
+                    url: "../Home/BuscarTransferirInventario",
+                    data: JSON.stringify(Inventario),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) {
+
+                        if (response != null) {
+                            //var date = new Date(Number(response.Fecha.replace(/\D/g, '')));
+
+                            $('#IdProducto').val(response.idProducto);
+                            $('#idCantidadInventarioE').val(response.cantidad);
+                            $('#cantidad1').val(0);
+                            //$('#ModalEditarCategoria').modal("show");
+                            //$('#Cantidad_').val(response.Cantidad);
+                            //$('#SegundaMagnitud _').val(response.SegundaMagnitud);
+                        } else {
+                            alert("Something went wrong");
+                        }
+
+
+
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+
+            }
+
+
+
+        });
+
+
+
+    };
+
+    //Buscar inventarioAlmacen.............................................................
+
+
+
+    function InventarioAlmacen() {
+
+        //$.ajax({
+        //    type: "GET",
+        //    url: "../Home/InventarioAlmacen",
+        //    contentType: "application/json; charset=utf-8",
+        //    dataType: "json"
+        //});
+
+
+        $.get("../Home/InventarioAlmacen", function (data) {
+
+            $("#dataTable").html(data);
+        })
+
+
+    }
+
+
+    function InventarioBar() {
+
+        //$.ajax({
+        //    type: "GET",
+        //    url: "../Home/InventarioAlmacen",
+        //    contentType: "application/json; charset=utf-8",
+        //    dataType: "json"
+        //});
+
+
+        $.get("../Home/InventarioBar", function (data) {
+
+            $("#dataTable").html(data);
+
+
+        })
+
+    }
+
+    function NuevaEntradaInventario() {
+
+
+        $('#noFacturaSuplidor').val("")
+        $('#cantidad').val("")
+
+        $('#NuevaEntradaInventario').modal('show');
+
+    }
+
+
+
+    $(function () {
+        $("#idProductoc").select2();
+    });
+
+    $(function () {
+        $("#idSuplidorc").select2();
+    });
+
+
+
+</script>
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>*@
+
+

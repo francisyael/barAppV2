@@ -1,0 +1,123 @@
+﻿@model barApp.Producto
+
+@using (Ajax.BeginForm("EditarEspeciales", FormMethod.Post, new AjaxOptions { LoadingElementId = "Progress", InsertionMode = InsertionMode.Replace, UpdateTargetId = "Contenedor", OnSuccess = "onSuccessEditarEspeciales", OnFailure = "onFailureAjax" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.Label("idEspecial", htmlAttributes: new { @class = "control-label col-md-2", id = "idEspecialC" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.idProducto, new { htmlAttributes = new { @class = "form-control", id = "idProductoF", @required = "required", @readonly = "readonly" } })
+                @Html.ValidationMessageFor(model => model.idProducto, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.nombre, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.nombre, new { htmlAttributes = new { @class = "form-control", @required = "required", id = "NombreE" } })
+                @Html.ValidationMessageFor(model => model.nombre, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group  mb-4">
+            @Html.LabelFor(model => model.precioVenta, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.precioVenta, new { htmlAttributes = new { @class = "form-control", @required = "required", id = "precioVentaE" } })
+                @Html.ValidationMessageFor(model => model.precioVenta, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group  mb-4">
+            <div class="input-group mb-4">
+
+                &nbsp;&nbsp;@Html.DropDownList("idCategoria", new SelectList((System.Collections.IEnumerable)ViewData["TipoCategoria"], "idCategoria", "nombre"), "Seleccionar Categoria", htmlAttributes: new { @class = "form-control", @required = "required", id = "idCategoriaF" })
+                @Html.ValidationMessageFor(model => model.idCategoria, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+
+        @*
+
+        <div class="form-group  mb-4">
+            <div class="input-group mb-4">
+
+                &nbsp;&nbsp;@Html.DropDownList("ddlIdProducto", new SelectList((System.Collections.IEnumerable)ViewData["TipoProducto"], "idProducto", "nombre"), "Seleccionar Productos", htmlAttributes: new { @class = "form-control", @required = "required", style = "font-weight:600", id = "ddlIdProducto" })
+
+                <span class="input-group-text"><i class="fa fa-save"></i></span>
+                <span class="input-group-text"><i class="fa fa-search fa-1x"></i></span>
+
+
+
+            </div>
+        </div>*@
+
+
+        @*<div class="form-group  mb-4">
+            @Html.Label("cantidad", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.idProductoEspecialCantidad, new { htmlAttributes = new { @class = "form-control", @required = "required", id = "cantidadC" } })
+                @Html.ValidationMessageFor(model => model.idProductoEspecialCantidad, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+
+
+        <div class="form-group">
+            @Html.Label("Hora Inicial (Deshabilitado)", htmlAttributes: new { @class = "control-label col-md-4" })
+            <div class="col-md-4">
+                @Html.EditorFor(model => model.iniciolEspecial, new { htmlAttributes = new { @class = "form-control", @type = "time", id = "HoraInicialF",disabled= "disabled" } })
+                @Html.ValidationMessageFor(model => model.iniciolEspecial, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Hora Final", htmlAttributes: new { @class = "control-label col-md-4" })
+            <div class="col-md-4">
+                @Html.EditorFor(model => model.finalEspecial, new { htmlAttributes = new { @class = "form-control", @type = "time", id = "HoraFinalF",disabled= "disabled" } })
+                @Html.ValidationMessageFor(model => model.finalEspecial, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.activo, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.CheckBox("activoF", new { htmlAttributes = new { @class = "form-control", id = "activoF" } })
+                    @Html.ValidationMessageFor(model => model.activo, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guarda</button>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+<script>
+    function onSuccessEditarEspeciales() {
+
+        $("#ModalEditarEspeciales").modal("hide")
+    }
+</script>
+
+
+@*<script type="text/javascript">
+    $(function () {
+        $("#ddlIdProducto").select2();
+    });
+    $(function () {
+        $("#idCategoriaF").select2();
+    });
+
+
+</script>*@

@@ -1,0 +1,49 @@
+﻿<div  id="Contenedor">
+    <div class="card mb-4 py-md-3 border-right-0 text-center">
+        <h1 class="h3 mb-0 text-gray-800">NCF</h1>
+
+
+
+    </div>
+
+    <div class="card shadow mb-4">
+        <a href="~/Uploads/CargaMasivaNCF.csv">
+            Descargar Modelo
+        </a>
+
+        @Html.AntiForgeryToken()
+        @using (Ajax.BeginForm("Ncf", "Home", new AjaxOptions
+        {
+
+            HttpMethod = "POST",
+            UpdateTargetId = "Contenedor",
+            InsertionMode = InsertionMode.Replace,
+            LoadingElementId = "progress",
+            OnSuccess = "onSuccessEliminar",
+            OnFailure = "onFailureAjax",
+
+
+        }, new { enctype = "multipart/form-data" }))
+        {
+
+            @*<img src="~/Resource/numbers/three.png" align="right" height="50" />*@
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <br />
+                    <input type="file" class="col-form-label" name="file" id="file" />
+
+                </div>
+                <br />
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" id="btnid" class="btn btn-success" name="generateFile" value="Guardar" />
+                    </div>
+                </div>
+            </div>
+
+        }
+
+    </div>
+
+</div>
+@{Html.RenderPartial("ModalMessenge", ViewData["Alert"] as barApp.Models.InfoMensaje);}

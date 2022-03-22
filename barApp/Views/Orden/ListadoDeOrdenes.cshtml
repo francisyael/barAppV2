@@ -1,0 +1,49 @@
+﻿@model IEnumerable<barApp.DetalleVenta>
+
+<table id="detalle" class="table table-dark" border="1">
+    <thead style="font-size:18px;">
+
+
+        <tr class="bg-danger">
+            <th>Id</th>
+            <th>Descripcion del Producto</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Total</th>
+            <th>Despachado</th>
+            <th>Borrar</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @if (Model != null)
+        {
+            foreach (var item in Model)
+            {
+                <tr class="@(item.despachada == true ? "" : "borrable")">
+                    <td id="@item.idDetalle">@item.idProducto</td>
+                    <td>@item.Producto.nombre.ToUpper()</td>
+                    <td>@item.cantidad.ToString("#,0")</td>
+                    <td>@item.precioVenta.GetValueOrDefault(0).ToString("$#,0.00")</td>
+                    <td name="@item.subTotal">@item.subTotal.ToString("$#,0.00")</td>
+
+                    @if (item.despachada == true)
+                    {
+                        <td name="Si">Si</td>
+                    }
+                    else
+                    {
+                        <td name="No">No</td>
+                    }
+
+                    <td><button class='btn btn-danger' type='button' onclick="fn_dar_eliminar('@item.idDetalle')"><span class='fa fa-remove'></span></button></td>
+                </tr>
+            }
+        }
+
+    </tbody>
+
+</table>
+
+
+

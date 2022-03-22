@@ -1,0 +1,42 @@
+﻿@model IEnumerable<barApp.Gastos>
+
+@if (Model != null)
+{
+
+
+<table  class="table table-bordered dataTable w-100" id="dataTableGastos" cellspacing="0" role="grid">
+    <tr class="odd">
+        <th>
+            @Html.DisplayNameFor(model => model.descripcion)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.cantidad)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Cuadre.idCuadre)
+        </th>
+                
+       
+    </tr>
+
+@foreach (var item in Model)
+{
+  
+    <tr class="odd">
+        <td>
+            @Html.DisplayFor(modelItem => item.descripcion)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.cantidad)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.idCuadre)
+        </td>
+       
+    </tr>
+}
+
+</table>
+}
+
+

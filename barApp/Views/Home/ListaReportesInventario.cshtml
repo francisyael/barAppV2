@@ -1,0 +1,108 @@
+﻿@model IEnumerable<barApp.Inventario>
+
+@if (ViewData["ListadoInventario"] != null)
+{
+
+    <table class="table table-bordered dataTable w-100" id="dataTableInventario" cellspacing="0" role="grid">
+
+        <tr class="odd">
+            <th>
+                Producto
+            </th>
+            <th>
+                Cantidad
+            </th>
+            <th>
+                Fecha
+            </th>
+            <th>
+                No.Factura
+            </th>
+            <th>
+                Usuario
+            </th>
+
+        </tr>
+
+
+        @foreach (var item in ViewData["ListadoInventario"] as IEnumerable<barApp.Inventario>)
+        {
+
+
+    <tr class="odd">
+
+        <td>
+            @item.Producto.nombre
+        </td>
+        <td>
+            @item.cantidad
+        </td>
+        <td>
+            @item.fecha
+        </td>
+        <td>
+            @item.noFacturaSuplidor
+        </td>
+        <td>
+            @item.Usuario.nombre
+        </td>
+
+
+
+
+    </tr>
+        }
+
+    </table>
+}
+
+
+@if (ViewData["ListadoInventarioBar"] != null)
+{
+
+    <table class="table table-bordered dataTable w-100" id="dataTableInventario" cellspacing="0" role="grid">
+
+        <tr class="odd">
+            <th>
+                Producto
+            </th>
+            <th>
+                Cantidad
+            </th>
+            <th>
+                Fecha
+            </th>
+            <th>
+                Usuario
+            </th>
+
+        </tr>
+
+
+        @foreach (var item in ViewData["ListadoInventarioBar"] as IEnumerable<barApp.InventarioBar>)
+        {
+
+
+            <tr class="odd">
+
+                <td>
+                    @item.Producto.nombre
+                </td>
+                <td>
+                    @item.cantidad
+                </td>
+                <td>
+                    @item.fecha
+                </td>
+
+                <td>
+                    @item.Usuario.nombre
+                </td>
+
+            </tr>
+        }
+
+    </table>
+}
+
+
