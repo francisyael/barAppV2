@@ -21,6 +21,9 @@
           <Property Name="idCliente" Type="numeric" Precision="18" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="nombre" Type="varchar" MaxLength="30" Nullable="false" />
           <Property Name="idMesa" Type="int" />
+          <Property Name="rnc" Type="varchar" MaxLength="30" />
+          <Property Name="ncf" Type="varchar" MaxLength="30" />
+          <Property Name="nMesa" Type="varchar" MaxLength="30" />
         </EntityType>
         <EntityType Name="ComprobanteFiscal">
           <Key>
@@ -731,6 +734,9 @@
           <Property Name="idMesa" Type="Int32" />
           <NavigationProperty Name="Mesa" Relationship="barbdModel.FK_Cliente_Mesa" FromRole="Cliente" ToRole="Mesa" />
           <NavigationProperty Name="Venta" Relationship="barbdModel.FK_venta_cliente" FromRole="Cliente" ToRole="Venta" />
+          <Property Name="rnc" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="ncf" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="nMesa" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Cuadre">
           <Key>
@@ -1486,6 +1492,9 @@
           <EntitySetMapping Name="Cliente">
             <EntityTypeMapping TypeName="barbdModel.Cliente">
               <MappingFragment StoreEntitySet="Cliente">
+                <ScalarProperty Name="nMesa" ColumnName="nMesa" />
+                <ScalarProperty Name="ncf" ColumnName="ncf" />
+                <ScalarProperty Name="rnc" ColumnName="rnc" />
                 <ScalarProperty Name="idMesa" ColumnName="idMesa" />
                 <ScalarProperty Name="idCliente" ColumnName="idCliente" />
                 <ScalarProperty Name="nombre" ColumnName="nombre" />

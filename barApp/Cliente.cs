@@ -23,6 +23,9 @@ namespace barApp
         public decimal idCliente { get; set; }
         public string nombre { get; set; }
         public Nullable<int> idMesa { get; set; }
+        public string rnc { get; set; }
+        public string ncf { get; set; }
+        public string nMesa { get; set; }
     
         public virtual Mesa Mesa { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

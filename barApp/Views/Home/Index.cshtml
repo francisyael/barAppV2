@@ -223,11 +223,20 @@
                                 <input id="NumOrdenFacturar" type="text" class="form-control" />
                             </div>
                         </div>
+                      
+                        <div class="row">
+                            <div class="col-6">
+                                <h5 class="font-weight-bold">--</h5>
+                                <h5 class="font-weight-bold">Cuentas</h5>
+                            </div>
+                            <div class="col-6">
+                                <h5 class="font-weight-bold">RNC</h5>
+                                <input id="RNCNUMERO" class="form-control" type="text" />
+                            </div>
+                        </div>
                         <br />
-
-                        <h5 class="font-weight-bold">Cuentas</h5>
                         @Html.ListBox("lbxFacturar", new SelectList(ViewBag.ClienteOrigen, "IdCliente", "Nombre", 1), new { @class = "form-control select-success", @style = "height:225px" })
-                        <br />
+
 
                         <div class="row">
                             <div class="col-7">
@@ -283,7 +292,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                    </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
@@ -988,7 +997,7 @@
 
         function FacturarReady() {
 
-
+       
         let x = document.getElementById("lbxFacturar");
         let y = document.getElementById("VendedorFacturar");
 
@@ -1013,7 +1022,8 @@
                             total: element.value,
                             numPago: element.getAttribute('data-type'),
                             descuento: descuento * 100,
-                            idUsuario: $('#CreditoFacturarInput').val()
+                            idUsuario: $('#CreditoFacturarInput').val(),
+                            rnc : $('#RNCNUMERO').val()
                         });
                     });
                 } else {
@@ -1026,7 +1036,8 @@
                     total: total,
                     numPago: modo,
                     descuento: descuento * 100,
-                    idUsuario: $('#CreditoFacturarInput').val()
+                    idUsuario: $('#CreditoFacturarInput').val(),
+                    rnc : $('#RNCNUMERO').val()
                 });
             }
         $("#facturarR").prop('disabled', true);

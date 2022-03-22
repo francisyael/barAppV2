@@ -74,7 +74,7 @@ namespace barApp.Controllers
                                 }
 
 
-                                if (ValidarUsuario.idRol == 2)
+                                if (ValidarUsuario.idRol == 2 || ValidarUsuario.idRol == 7)
                                 {
                                     var objinfoContrasena = new InfoContrasena
                                     {

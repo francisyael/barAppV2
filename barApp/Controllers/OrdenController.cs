@@ -582,8 +582,14 @@ namespace barApp.Controllers
         [HttpPost]
         public ActionResult NuevaOrden(Cliente cliente)
         {
+
+           
+
             using (var Context = new barbdEntities())
             {
+
+                cliente.nMesa = "MESA-" + cliente.idMesa.ToString();
+
                 var ObjCliente = Context.Cliente.Add(cliente);
                 Context.SaveChanges();
 
@@ -713,10 +719,13 @@ namespace barApp.Controllers
                 Venta venta = context.Venta.Find(id);
                 venta.ordenCerrada = true;
 
+                //var extraerMesa = context.Cliente.Find(venta.idCliente);
+                //venta.Cliente.nMesa = extraerMesa.Mesa.descripcion +"-"+ extraerMesa.Mesa.idMesa.ToString();
+
                 venta.Cliente.idMesa = null;
 
                 result = context.SaveChanges();
-                cliente = "xxx";//context.Cliente.Find(venta.idCliente).nombre;
+                cliente = venta.Cliente.nMesa;// "xxx";//context.Cliente.Find(venta.idCliente).nombre;
                 vendedor = context.Usuario.Find(venta.idUsuario).nombre;
                 subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.subTotal);
                 itbis = context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.18m;
