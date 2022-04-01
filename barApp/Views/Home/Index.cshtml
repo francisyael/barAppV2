@@ -1051,6 +1051,7 @@
                     if (response.Tipo == "Ready") {
                         $('#Administrador').modal('hide');
                         $("#lbxFacturar option:selected").remove();
+                        $("#RNCNUMERO").val("");
                         FacturarHandleChange();
 
                         alert(response.Mensaje);

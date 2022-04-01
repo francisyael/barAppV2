@@ -28,6 +28,11 @@
 
             <th>Fecha</th>
 
+
+            <th>RNC</th>
+
+            <th>NCF</th>
+
             <th>Detalles</th>
         </tr>
 
@@ -83,7 +88,7 @@
 
                 if (item.Factura.Count > 1)
                 {
-                    var des = string.IsNullOrEmpty(item.Factura.First().ToString()) ? "0": item.Factura.First().descuento.ToString();
+                    var des = string.IsNullOrEmpty(item.Factura.First().ToString()) ? "0" : item.Factura.First().descuento.ToString();
 
 
                     descuento = des;
@@ -103,40 +108,70 @@
         </td>
 
 
-            <td>
+        <td>
 
-                @item.total.ToString("$#,0.00")
+            @item.total.ToString("$#,0.00")
 
-            </td>
+        </td>
 
-            <td>
+        <td>
 
-                @item.Cuadre.fecha.Value.ToShortDateString()
+            @item.Cuadre.fecha.Value.ToShortDateString()
 
-            </td>
+        </td>
 
-            <td>
 
-                <button data-toggle="modal" onclick="myfunction(@item.idVenta)" class="btn btn-link" data-target="#DetallesVenta"> <i class="fa fa-search fa-1x text-secondary"></i> </button>
-
-                @*@Ajax.ActionLink(" ", "IndexDetalles", "Orden", new { id = item.idVenta }, new AjaxOptions()
+        <td>
+          
+            @{
+                string rnc = "";
+                if (!String.IsNullOrEmpty(item.Cliente.rnc))
                 {
-                    HttpMethod = "POST",
-                    UpdateTargetId = "Contenedor",
-                    InsertionMode = InsertionMode.Replace,
-                    LoadingElementId = "progress",
+                    rnc = String.IsNullOrEmpty(item.Cliente.rnc.ToString()) ? "" : item.Cliente.rnc.ToString();
+                }
+                @rnc
 
-                    //OnBegin = "onBeginAjax",
-                    //OnComplete = "onCompleteAjax",
-                    OnSuccess = "onSuccessEliminar",
-                    OnFailure = "onFailureAjax",
-                }, new { @class = "fa fa-search fa-1x text-secondary" })*@
-            </td>
-            @*<td>
-                @Html.DisplayFor(modelItem => item.MontoRestante)
-            </td>*@
+            }
 
-        </tr>
+
+        </td>
+
+        <td>
+            @{
+                string ncf = "";
+                if (!String.IsNullOrEmpty(item.Cliente.ncf))
+                {
+                    ncf = String.IsNullOrEmpty(item.Cliente.ncf.ToString()) ? "" : item.Cliente.ncf.ToString();
+                 }
+                 @ncf
+
+            }
+
+
+        </td>
+
+        <td>
+
+            <button data-toggle="modal" onclick="myfunction(@item.idVenta)" class="btn btn-link" data-target="#DetallesVenta"> <i class="fa fa-search fa-1x text-secondary"></i> </button>
+
+            @*@Ajax.ActionLink(" ", "IndexDetalles", "Orden", new { id = item.idVenta }, new AjaxOptions()
+            {
+                HttpMethod = "POST",
+                UpdateTargetId = "Contenedor",
+                InsertionMode = InsertionMode.Replace,
+                LoadingElementId = "progress",
+
+                //OnBegin = "onBeginAjax",
+                //OnComplete = "onCompleteAjax",
+                OnSuccess = "onSuccessEliminar",
+                OnFailure = "onFailureAjax",
+            }, new { @class = "fa fa-search fa-1x text-secondary" })*@
+        </td>
+        @*<td>
+            @Html.DisplayFor(modelItem => item.MontoRestante)
+        </td>*@
+
+    </tr>
 
         }
 

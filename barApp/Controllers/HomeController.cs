@@ -3697,14 +3697,14 @@ namespace barApp.Controllers
 
                     if (rango.index == -2)
                     {
-                        var ReportesVentas_ = entity.Venta.Include("cuadre").Include("factura").Include("usuario").Where(x => t.Contains(x.idCuadre) && x.ordenFacturada == true).ToList();
+                        var ReportesVentas_ = entity.Venta.Include("cuadre").Include("factura").Include("usuario").Include("cliente").Where(x => t.Contains(x.idCuadre) && x.ordenFacturada == true).ToList();
 
                         ViewBag.tipopago = entity.ModoPago.ToList();
                         return PartialView("ListaReportesVentas", ReportesVentas_);
                     }
                     else
                     {
-                        var ReportesVentas_ = entity.Venta.Include("cuadre").Include("factura").Include("usuario").Where(x => t.Contains(x.idCuadre) && x.ordenFacturada == true && x.Factura.FirstOrDefault().numPago == rango.index).ToList();
+                        var ReportesVentas_ = entity.Venta.Include("cuadre").Include("factura").Include("usuario").Include("cliente").Where(x => t.Contains(x.idCuadre) && x.ordenFacturada == true && x.Factura.FirstOrDefault().numPago == rango.index).ToList();
 
                         ViewBag.tipopago = entity.ModoPago.ToList();
                         return PartialView("ListaReportesVentas", ReportesVentas_);

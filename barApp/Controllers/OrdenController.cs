@@ -287,19 +287,39 @@ namespace barApp.Controllers
                 
 
                 DetalleVenta detalle = context.DetalleVenta.Find(idDetalle);
+                int tipo = detalle.Producto.Categoria.TipoCategoria.id;
                 context.Entry(detalle).State = System.Data.Entity.EntityState.Deleted;
 
                 if (detalle.despachada ==true)
                 {
-                    printer.AddSpace();
-                    printer.AddSpace();
-                    printer.AddSubtitle($"Producto Eliminado (Orden No. {detalle.idVenta})");
-                    printer.AddSpace();
-                    printer.AddTable(new string[4] { "Producto", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
-                    printer.AddSpace();
-                    printer.AddString(DateTime.Now.ToLongDateString() +" "+ DateTime.Now.ToLongTimeString());
-                    printer.AddSpace();
-                    printer.Print();
+                   
+
+                    if (tipo == 1 || tipo == 3)
+                    {
+
+                        printer.AddSpace();
+                        printer.AddSpace();
+                        printer.AddSubtitle($"Producto Eliminado (Orden No. {detalle.idVenta})");
+                        printer.AddSpace();
+                        printer.AddTable(new string[4] { "Producto", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
+                        printer.AddSpace();
+                        printer.AddString(DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString());
+                        printer.AddSpace();
+                        printer.Print();
+                    }
+                    else
+                    {
+                        printer.AddSpace();
+                        printer.AddSpace();
+                        printer.AddSubtitle($"Producto Eliminado (Orden No. {detalle.idVenta})");
+                        printer.AddSpace();
+                        printer.AddTable(new string[4] { "Producto", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
+                        printer.AddSpace();
+                        printer.AddString(DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString());
+                        printer.AddSpace();
+                        printer.Print("RuntaImpresora");
+                    }
+
                 }
 
 
@@ -615,6 +635,7 @@ namespace barApp.Controllers
         public int Despachar(string waiter, int[] ids, string instrucciones)
         {
             List<string[]> data = new List<string[]>();
+            List<string[]> dataR = new List<string[]>();
 
             using (barbdEntities context = new barbdEntities())
             {
@@ -624,32 +645,70 @@ namespace barApp.Controllers
                     detalleVenta.despachada = true;
                     context.Entry(detalleVenta).State = System.Data.Entity.EntityState.Modified;
 
-                    data.Add(new string[2] { detalleVenta.Producto.nombre.ToUpper(), detalleVenta.cantidad.ToString() });
+                    if (detalleVenta.Producto.Categoria.TipoCategoria.id == 1 || detalleVenta.Producto.Categoria.TipoCategoria.id == 3)
+                    {
+                        data.Add(new string[2] { detalleVenta.Producto.nombre.ToUpper(), detalleVenta.cantidad.ToString() });
+                    }
+                    else
+                    {
+                        dataR.Add(new string[2] { detalleVenta.Producto.nombre.ToUpper(), detalleVenta.cantidad.ToString() });
+                    }
+
+                  
                 }
 
                 context.SaveChanges();
             }
 
-            Printer printer = new Printer();
-            Dictionary<string, string> list = new Dictionary<string, string>();
-            list.Add("Vendedor/a", waiter);
-            list.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
-            list.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
-
-            printer.AddTitle("Despachar");
-            printer.AddSpace(3);
-            printer.AddDescriptionList(list);
-            printer.AddSpace(2);
-            printer.AddTable(new string[2] { "Producto", "Cant" }, data.ToArray(),map: new float[2] {70f,30f});
-
-            if (!string.IsNullOrWhiteSpace(instrucciones))
+            if (data.Count> 0)
             {
+                Printer printer = new Printer();
+                Dictionary<string, string> list = new Dictionary<string, string>();
+                list.Add("Vendedor/a", waiter);
+                list.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
+                list.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
+
+                printer.AddTitle("Despachar");
+                printer.AddSpace(3);
+                printer.AddDescriptionList(list);
                 printer.AddSpace(2);
-                printer.AddString("Instrucciones especiales:", true);
-                printer.AddString(instrucciones);
+                printer.AddTable(new string[2] { "Producto", "Cant" }, data.ToArray(), map: new float[2] { 70f, 30f });
+
+                //if (!string.IsNullOrWhiteSpace(instrucciones))
+                //{
+                //    printer.AddSpace(2);
+                //    printer.AddString("Instrucciones especiales:", true);
+                //    printer.AddString(instrucciones);
+                //}
+
+                printer.Print();
+            }
+            if (dataR.Count > 0)
+            {
+                Printer printer = new Printer();
+                Dictionary<string, string> list = new Dictionary<string, string>();
+                list.Add("Vendedor/a", waiter);
+                list.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
+                list.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
+
+                printer.AddTitle("Despachar");
+                printer.AddSpace(3);
+                printer.AddDescriptionList(list);
+                printer.AddSpace(2);
+                printer.AddTable(new string[2] { "Producto", "Cant" }, dataR.ToArray(), map: new float[2] { 70f, 30f });
+
+                if (!string.IsNullOrWhiteSpace(instrucciones))
+                {
+                    printer.AddSpace(2);
+                    printer.AddString("Instrucciones especiales:", true);
+                    printer.AddString(instrucciones);
+                }
+
+                printer.Print("RuntaImpresora");
             }
 
-            printer.Print();
+
+         
 
             return 1;
         }

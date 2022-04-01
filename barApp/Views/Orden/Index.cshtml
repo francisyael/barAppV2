@@ -678,8 +678,8 @@
                                                                     let ids = [...$('#detalle tr.borrable').map((_, b) => b.cells[0].innerText)];
 
                                                                     if (productos.some(p => ids.includes(p))) {
-                                                                        //$('#DespacharModal').modal('show');
-                                                                        Despachar();
+                                                                        $('#DespacharModal').modal('show');
+                                                                        //Despachar();
                                                                     } else {
 
                                                                         Despachar();

@@ -383,6 +383,46 @@ namespace barApp.Models
 
 
             }
+
+                else if (Tipo == "RuntaImpresora")
+                {
+
+                    string RutaCocina = System.Configuration.ConfigurationManager.AppSettings["RutaCocina"].ToString();
+
+                    using (var context = new barbdEntities())
+                    {
+
+
+                        //var host = Dns.GetHostEntry(Dns.GetHostName());
+
+                        //foreach (var ip in host.AddressList)
+                        //{
+                        //    if (ip.AddressFamily == AddressFamily.InterNetwork)
+                        //    {
+                        //        Ip = ip.ToString();
+                        //    }
+                        //}
+
+                        //var OjbImpresora = context.Impresoras.SingleOrDefault(x => x.IpPC == Ip);
+
+                        if (RutaCocina.ToUpper() == "NO")
+                        {
+                            string printerRoute = "";
+                            Document.PrinterSettings.PrinterName = string.IsNullOrWhiteSpace(printerRoute) ? Document.PrinterSettings.PrinterName : printerRoute; // */
+                            Document.Print();
+                        }
+                        else
+                        {
+                            Document.PrinterSettings.PrinterName = RutaCocina; // OjbImpresora.defecto == true ? string.IsNullOrWhiteSpace(printerRoute) ? Document.PrinterSettings.PrinterName : printerRoute : OjbImpresora.IpImpresora;
+                            Document.Print();
+                        }
+
+                           
+                    }
+
+
+                }
+
             else
             {
                 string Ip = "";
@@ -391,22 +431,38 @@ namespace barApp.Models
                 {
 
 
-                    //var host = Dns.GetHostEntry(Dns.GetHostName());
+                        //var host = Dns.GetHostEntry(Dns.GetHostName());
 
-                    //foreach (var ip in host.AddressList)
-                    //{
-                    //    if (ip.AddressFamily == AddressFamily.InterNetwork)
-                    //    {
-                    //        Ip = ip.ToString();
-                    //    }
-                    //}
+                        //foreach (var ip in host.AddressList)
+                        //{
+                        //    if (ip.AddressFamily == AddressFamily.InterNetwork)
+                        //    {
+                        //        Ip = ip.ToString();
+                        //    }
+                        //}
 
-                    //var OjbImpresora = context.Impresoras.SingleOrDefault(x => x.IpPC == Ip);
+                        //var OjbImpresora = context.Impresoras.SingleOrDefault(x => x.IpPC == Ip);
 
-                    string printerRoute = "";
+                        string rutabar = System.Configuration.ConfigurationManager.AppSettings["RutaBar"].ToString();
 
-                    Document.PrinterSettings.PrinterName = string.IsNullOrWhiteSpace(printerRoute) ? Document.PrinterSettings.PrinterName : printerRoute; // OjbImpresora.defecto == true ? string.IsNullOrWhiteSpace(printerRoute) ? Document.PrinterSettings.PrinterName : printerRoute : OjbImpresora.IpImpresora;
-                    Document.Print();
+
+                        //Document.PrinterSettings.PrinterName = RutaCocina; // OjbImpresora.defecto == true ? string.IsNullOrWhiteSpace(printerRoute) ? Document.PrinterSettings.PrinterName : printerRoute : OjbImpresora.IpImpresora;
+
+                        if (rutabar.ToUpper() == "NO")
+                        {
+                            string printerRoute = "";
+                            Document.PrinterSettings.PrinterName = string.IsNullOrWhiteSpace(printerRoute) ? Document.PrinterSettings.PrinterName : printerRoute; // */
+                            Document.Print();
+                        }
+                        else
+                        {
+                            // string printerRoute = "";
+                            Document.PrinterSettings.PrinterName = rutabar; //string.IsNullOrWhiteSpace(printerRoute) ? Document.PrinterSettings.PrinterName : printerRoute; // */
+                            Document.Print();
+                        }
+
+                        
+                      
                 }
             }
 
