@@ -718,11 +718,10 @@ namespace barApp.Controllers
                     {
                         printer.AddString("Pago Deposito");
                     }
+                                       
 
-                   
 
-
-                    printer.Print();
+                    printer.Print(venta.Factura[0].numPago.ToString());
 
                     InfoMensaje Info = new InfoMensaje
                     {

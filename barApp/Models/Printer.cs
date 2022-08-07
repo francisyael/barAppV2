@@ -31,6 +31,7 @@ namespace barApp.Models
         private int ySeparation;
         private float yCurrent;
 
+        private string gmailPass = System.Configuration.ConfigurationManager.AppSettings["gmailPass"].ToString();
         public readonly KeyValuePair<string, string> EmptyListElement = new KeyValuePair<string, string>(string.Empty, string.Empty);
 
         public Printer(string printerRoute = "")
@@ -309,7 +310,7 @@ namespace barApp.Models
             Document.PrintPage += function;
         }
 
-        public void Print(string Tipo= "",string HTMLCorreo ="")
+        public void Print(string Tipo = "", string HTMLCorreo = "")
         {
 
             string IP = System.Configuration.ConfigurationManager.AppSettings["Noip"].ToString();
@@ -317,19 +318,19 @@ namespace barApp.Models
             if (IP.ToUpper() == "NO")
             {
 
-            string ruta = "";
+                string ruta = "";
 
-            if (Tipo == "Cuadre")
-            {
-                //ruta = @"C:\Cuadres\" + System.DateTime.Now.ToString("ddMMyyyymmss") + ".pdf";
-                //Document.PrinterSettings.PrintToFile = true;
-                //Document.PrinterSettings.PrintFileName = ruta;
+                if (Tipo == "Cuadre")
+                {
+                    //ruta = @"C:\Cuadres\" + System.DateTime.Now.ToString("ddMMyyyymmss") + ".pdf";
+                    //Document.PrinterSettings.PrintToFile = true;
+                    //Document.PrinterSettings.PrintFileName = ruta;
 
-                //  string printerRoute = "";
-                string printerRoute = "";
-                Document.PrinterSettings.PrinterName = string.IsNullOrWhiteSpace(printerRoute) ? Document.PrinterSettings.PrinterName : printerRoute; // */
+                    //  string printerRoute = "";
+                    string printerRoute = "";
+                    Document.PrinterSettings.PrinterName = string.IsNullOrWhiteSpace(printerRoute) ? Document.PrinterSettings.PrinterName : printerRoute; // */
 
-                Document.Print();
+                    Document.Print();
 
                     //PdfDocument doc = new PdfDocument();
                     //doc.LoadFromFile(ruta);
@@ -354,35 +355,35 @@ namespace barApp.Models
 
 
                         HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://www.google.com/");
-                    request.Timeout = 5000;
-                    request.Credentials = CredentialCache.DefaultNetworkCredentials;
-                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                        request.Timeout = 5000;
+                        request.Credentials = CredentialCache.DefaultNetworkCredentials;
+                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
-                    using (var contex = new barbdEntities())
-                    {
-                        if (response.StatusCode == HttpStatusCode.OK)
+                        using (var contex = new barbdEntities())
                         {
-                            var ListadoCorreo = contex.Usuario.Where(x => x.Correo != "" && x.EnvioCorreo == true).ToList();
-
-                            foreach (var item in ListadoCorreo)
+                            if (response.StatusCode == HttpStatusCode.OK)
                             {
-                                EnviarMail("multicoretech01@gmail.com", item.Correo, "Cuadre del dia", "Cuadre Correspondiente al " + System.DateTime.Now.ToLongDateString(), "multicoretech01@gmail.com", "Numero18", HTMLCorreo);
+                                var ListadoCorreo = contex.Usuario.Where(x => x.Correo != "" && x.EnvioCorreo == true).ToList();
+
+                                foreach (var item in ListadoCorreo)
+                                {
+                                    EnviarMail("multicoretech01@gmail.com", item.Correo, "Cuadre del dia", "Cuadre Correspondiente al " + System.DateTime.Now.ToLongDateString(), "multicoretech01@gmail.com", gmailPass, HTMLCorreo);
+                                }
+
                             }
 
                         }
 
+
+                    }
+                    catch (System.Exception ex)
+                    {
+
                     }
 
 
-                }
-                catch (System.Exception ex)
-                {
 
                 }
-
-
-
-            }
 
                 else if (Tipo == "RuntaImpresora")
                 {
@@ -417,18 +418,44 @@ namespace barApp.Models
                             Document.Print();
                         }
 
-                           
+
                     }
 
 
                 }
 
-            else
-            {
-                string Ip = "";
-
-                using (var context = new barbdEntities())
+                else if (Tipo == "2")
                 {
+
+
+
+                    string rutaTarjeta = System.Configuration.ConfigurationManager.AppSettings["RutaTarjeta"].ToString();
+
+
+                    //Document.PrinterSettings.PrinterName = RutaCocina; // OjbImpresora.defecto == true ? string.IsNullOrWhiteSpace(printerRoute) ? Document.PrinterSettings.PrinterName : printerRoute : OjbImpresora.IpImpresora;
+
+                    if (rutaTarjeta.ToUpper() == "NO")
+                    {
+                        string printerRoute = "";
+                        Document.PrinterSettings.PrinterName = string.IsNullOrWhiteSpace(printerRoute) ? Document.PrinterSettings.PrinterName : printerRoute; // */
+                        Document.Print();
+                    }
+                    else
+                    {
+                        // string printerRoute = "";
+                        Document.PrinterSettings.PrinterName = rutaTarjeta; //string.IsNullOrWhiteSpace(printerRoute) ? Document.PrinterSettings.PrinterName : printerRoute; // */
+                        Document.Print();
+                    }
+
+
+                }
+
+                else
+                {
+                    string Ip = "";
+
+                    using (var context = new barbdEntities())
+                    {
 
 
                         //var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -461,10 +488,10 @@ namespace barApp.Models
                             Document.Print();
                         }
 
-                        
-                      
+
+
+                    }
                 }
-            }
 
 
             }
@@ -480,8 +507,8 @@ namespace barApp.Models
                     //Document.PrinterSettings.PrintFileName = ruta;
 
                     //  string printerRoute = "";
-                  //  string printerRoute = "";
-                 //   Document.PrinterSettings.PrinterName = "Microsoft Print to PDF";
+                    //  string printerRoute = "";
+                    //   Document.PrinterSettings.PrinterName = "Microsoft Print to PDF";
                     //Document.PrinterSettings.PrinterName = string.IsNullOrWhiteSpace(printerRoute) ? Document.PrinterSettings.PrinterName : printerRoute; // "Microsoft Print to PDF";
 
                     //Document.Print();
@@ -534,7 +561,7 @@ namespace barApp.Models
 
                                 foreach (var item in ListadoCorreo)
                                 {
-                                    EnviarMail("multicoretech01@gmail.com", item.Correo, "Cuadre del dia", "Cuadre Correspondiente al " + System.DateTime.Now.ToLongDateString(), "multicoretech01@gmail.com", "Numero18", HTMLCorreo);
+                                    EnviarMail("multicoretech01@gmail.com", item.Correo, "Cuadre del dia", "Cuadre Correspondiente al " + System.DateTime.Now.ToLongDateString(), "multicoretech01@gmail.com", gmailPass, HTMLCorreo);
                                 }
 
                             }
@@ -617,7 +644,7 @@ namespace barApp.Models
                         var OjbImpresora = context.Impresoras.SingleOrDefault(x => x.IpPC == Ip);
 
                         string printerRoute = "";
-               
+
                         Document.PrinterSettings.PrinterName = OjbImpresora.defecto == true ? string.IsNullOrWhiteSpace(printerRoute) ? Document.PrinterSettings.PrinterName : printerRoute : OjbImpresora.IpImpresora;
                         Document.Print();
                     }
@@ -656,7 +683,7 @@ namespace barApp.Models
 
 
 
-          //  string filename = rutaAdjunto;
+            //  string filename = rutaAdjunto;
             //Attachment data = new Attachment(filename, MediaTypeNames.Application.Octet);
 
             SmtpClient client = new SmtpClient();
@@ -673,9 +700,9 @@ namespace barApp.Models
             MailMessage mail = new MailMessage("Multitepro@Multicore.com", para, "Cuadre", "Cuadre correspondiente al" + System.DateTime.Now.ToLongDateString());
             mail.BodyEncoding = UTF8Encoding.UTF8;
             mail.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
-            mail.IsBodyHtml= true;
+            mail.IsBodyHtml = true;
             mail.Body = html;
-           // mail.Attachments.Add(data);
+            // mail.Attachments.Add(data);
             client.Send(mail);
 
 
@@ -738,7 +765,7 @@ namespace barApp.Models
         public void CorreoEliminado(string HTMLCorreo)
 
         {
-            
+
             try
             {
 
@@ -756,7 +783,7 @@ namespace barApp.Models
 
                         foreach (var item in ListadoCorreo)
                         {
-                            EnviarMail1("multicoretech01@gmail.com", item.Correo, "Producto Elimminado", "Fecha:" + System.DateTime.Now.ToLongDateString(), "multicoretech01@gmail.com", "Numero18", HTMLCorreo);
+                            EnviarMail1("multicoretech01@gmail.com", item.Correo, "Producto Elimminado", "Fecha:" + System.DateTime.Now.ToLongDateString(), "multicoretech01@gmail.com", gmailPass, HTMLCorreo);
                         }
 
                     }
