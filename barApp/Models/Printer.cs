@@ -695,7 +695,7 @@ namespace barApp.Models
             client.DeliveryMethod = SmtpDeliveryMethod.Network;
             client.UseDefaultCredentials = false;
             // nos autenticamos con nuestra cuenta de gmail
-            client.Credentials = new NetworkCredential(de, "Numero18");
+            client.Credentials = new NetworkCredential(de, gmailPass);
 
             MailMessage mail = new MailMessage("Multitepro@Multicore.com", para, "Cuadre", "Cuadre correspondiente al" + System.DateTime.Now.ToLongDateString());
             mail.BodyEncoding = UTF8Encoding.UTF8;
@@ -748,7 +748,7 @@ namespace barApp.Models
             client.DeliveryMethod = SmtpDeliveryMethod.Network;
             client.UseDefaultCredentials = false;
             // nos autenticamos con nuestra cuenta de gmail
-            client.Credentials = new NetworkCredential(de, "Numero18");
+            client.Credentials = new NetworkCredential(de, gmailPass);
 
             MailMessage mail = new MailMessage("Multitepro@Multicore.com", para, "Producto Eliminado", "Fecha:" + System.DateTime.Now.ToLongDateString());
             mail.BodyEncoding = UTF8Encoding.UTF8;

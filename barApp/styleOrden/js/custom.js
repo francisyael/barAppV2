@@ -103,9 +103,9 @@
     Datepicker
     ................................................. */
 	
-	$('.datepicker').datepicker();
+	//$('.datepicker').datepicker();
 	
-	$('.time').datepicker();
+	//$('.time').datepicker();
 	
 	
 	

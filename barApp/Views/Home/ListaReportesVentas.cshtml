@@ -33,6 +33,8 @@
 
             <th>NCF</th>
 
+            <th>Prop.</th>
+
             <th>Detalles</th>
         </tr>
 
@@ -122,7 +124,7 @@
 
 
         <td>
-          
+
             @{
                 string rnc = "";
                 if (!String.IsNullOrEmpty(item.Cliente.rnc))
@@ -142,12 +144,23 @@
                 if (!String.IsNullOrEmpty(item.Cliente.ncf))
                 {
                     ncf = String.IsNullOrEmpty(item.Cliente.ncf.ToString()) ? "" : item.Cliente.ncf.ToString();
-                 }
-                 @ncf
+                }
+                @ncf
 
             }
 
 
+        </td>
+         
+        <td>
+            @{
+                float Propina;
+
+                Propina = @item.total * 0.10f;
+
+            }
+
+            @Propina.ToString("$#,0.00")
         </td>
 
         <td>

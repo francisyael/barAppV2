@@ -561,7 +561,10 @@ namespace barApp.Controllers
                 decimal subtotal;
                 decimal descuentos;
                 decimal itbis;
+                decimal propina;
                 string[][] data;
+                decimal Dollar;
+                decimal Euro;
 
                 using (barbdEntities context = new barbdEntities())
                 {
@@ -569,7 +572,11 @@ namespace barApp.Controllers
                     rnc = String.IsNullOrEmpty(venta.Factura[0].rnc)?"": venta.Factura[0].rnc.ToString(); //context.Configuraciones.Find("RNC").Value;
                     telefono = context.Configuraciones.Find("Telefono").Value;
                     saludo = context.Configuraciones.Find("Saludo").Value;
-
+                    var d = context.Configuraciones.Find("Dollar").Value;
+                    Dollar = Convert.ToDecimal(d);
+                    var e = context.Configuraciones.Find("Euro").Value;
+                    Euro = Convert.ToDecimal(e);
+                   
                     Venta _venta = context.Venta.Find(venta.idVenta);
                     _venta.ordenFacturada = true;
 
@@ -613,6 +620,7 @@ namespace barApp.Controllers
                     subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == venta.idVenta).Sum(vd => vd.subTotal);
                     descuentos = subtotal - (decimal)venta.Factura.Sum(f => f.total);
                     itbis = context.DetalleVenta.Where(vd => vd.idVenta == venta.idVenta).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.18m;
+                    propina = context.DetalleVenta.Where(vd => vd.idVenta == venta.idVenta).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.10m;
                     data =
                         context.DetalleVenta
                         .Where(vd => vd.idVenta == venta.idVenta)
@@ -664,8 +672,9 @@ namespace barApp.Controllers
 
 
                     Dictionary<string, string> tableDetails = new Dictionary<string, string>();
-                    tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
-                    tableDetails.Add("ITBIS", itbis.ToString("$#,0.00"));
+                    tableDetails.Add("Subtotal", (subtotal - itbis-propina).ToString("$#,0.00"));
+                    tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
+                    tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
                     tableDetails.Add("Descuento", descuentos.ToString("$#,0.00") + " (" + venta.Factura[0].descuento.GetValueOrDefault(0).ToString() + "%)");
                     Dictionary<string, string> tableTotal = new Dictionary<string, string>();
                     tableTotal.Add("TOTAL", (subtotal - descuentos).ToString("$#,0.00"));
@@ -690,6 +699,11 @@ namespace barApp.Controllers
                     printer.AddBarCode(venta.idVenta.ToString());
                     printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
                     printer.AddSpace(2);
+                    decimal DollarInfo = subtotal / Dollar;
+                    printer.AddString("Dollar $ " + DollarInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
+                    decimal EuroInfo = subtotal / Euro;
+                    printer.AddString("Euro $ " + EuroInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
+
 
                     if (venta.Factura[0].numPago == -1)
                     {
@@ -3953,7 +3967,10 @@ namespace barApp.Controllers
             string vendedor;
             decimal subtotal;
             decimal itbis;
+            decimal propina;
             string[][] data;
+            decimal Dollar;
+            decimal Euro;
 
             using (barbdEntities context = new barbdEntities())
             {
@@ -3961,6 +3978,10 @@ namespace barApp.Controllers
                 rnc = context.Configuraciones.Find("RNC").Value;
                 telefono = context.Configuraciones.Find("Telefono").Value;
                 saludo = context.Configuraciones.Find("Saludo").Value;
+                var d = context.Configuraciones.Find("Dollar").Value;
+                Dollar = Convert.ToDecimal(d);
+                var e = context.Configuraciones.Find("Euro").Value;
+                Euro = Convert.ToDecimal(e);
 
                 Venta venta = context.Venta.Find(id);
                 venta.ordenCerrada = true;
@@ -3972,6 +3993,7 @@ namespace barApp.Controllers
                 vendedor = context.Usuario.Find(venta.idUsuario).nombre;
                 subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.subTotal);
                 itbis = context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.18m;
+                propina = context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.10m;
                 data =
                     context.DetalleVenta
                     .Where(vd => vd.idVenta == id)
@@ -3997,8 +4019,9 @@ namespace barApp.Controllers
             list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
 
             Dictionary<string, string> tableDetails = new Dictionary<string, string>();
-            tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
-            tableDetails.Add("ITBIS", itbis.ToString("$#,0.00"));
+            tableDetails.Add("Subtotal", (subtotal - itbis-propina).ToString("$#,0.00"));
+            tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
+            tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
             Dictionary<string, string> tableTotal = new Dictionary<string, string>();
             tableTotal.Add("TOTAL", subtotal.ToString("$#,0.00"));
 
@@ -4022,7 +4045,11 @@ namespace barApp.Controllers
             printer.AddBarCode(id.ToString());
             printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
             printer.AddSpace(2);
-
+            decimal DollarInfo = subtotal / Dollar;
+            printer.AddString("Dollar $ " + DollarInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
+            decimal EuroInfo = subtotal / Euro;
+            printer.AddString("Euro $ " + EuroInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
+            
             printer.Print();
 
             return 1;
