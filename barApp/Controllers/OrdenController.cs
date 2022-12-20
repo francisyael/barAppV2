@@ -127,17 +127,7 @@ namespace barApp.Controllers
                         Context.DetalleVenta.Add(detalleVenta);
 
                         Venta venta = Context.Venta.Find(detalleVenta.idVenta);
-                        string ImpuestoCalculo = System.Configuration.ConfigurationManager.AppSettings["Impuestos"].ToString();
-                        if (ImpuestoCalculo.ToUpper() == "SI")
-                        {
-                            float imp = (detalleVenta.subTotal * 0.28f) ;
-
-                            venta.total += detalleVenta.subTotal+imp;
-                        }
-                        else
-                        {
-                            venta.total += detalleVenta.subTotal;
-                        }
+                        venta.total += detalleVenta.subTotal;
                         Context.Entry(venta).State = System.Data.Entity.EntityState.Modified;
 
                         Context.SaveChanges();
@@ -237,17 +227,7 @@ namespace barApp.Controllers
                     Context.DetalleVenta.Add(detalleVenta);
 
                     Venta venta = Context.Venta.Find(detalleVenta.idVenta);
-                    string ImpuestoCalculo = System.Configuration.ConfigurationManager.AppSettings["Impuestos"].ToString();
-                    if (ImpuestoCalculo.ToUpper() == "SI")
-                    {
-                        float imp = (detalleVenta.subTotal * 0.28f);
-
-                        venta.total += detalleVenta.subTotal+imp;
-                    }
-                    else
-                    {
-                        venta.total += detalleVenta.subTotal;
-                    }
+                    venta.total += detalleVenta.subTotal;
                     Context.Entry(venta).State = System.Data.Entity.EntityState.Modified;
 
                     Context.SaveChanges();
@@ -447,17 +427,7 @@ namespace barApp.Controllers
 
 
                             Venta venta = context.Venta.Find(detalleVenta.idVenta);
-                            string ImpuestoCalculo = System.Configuration.ConfigurationManager.AppSettings["Impuestos"].ToString();
-                            if (ImpuestoCalculo.ToUpper() == "SI")
-                            {
-                                float imp = (detalleVenta.subTotal * 0.28f);
-
-                                venta.total += detalleVenta.subTotal+imp;
-                            }
-                            else
-                            {
-                                venta.total += detalleVenta.subTotal;
-                            }
+                            venta.total += detalleVenta.subTotal;     
                             context.Entry(venta).State = System.Data.Entity.EntityState.Modified;
 
                             context.SaveChanges();
@@ -851,32 +821,11 @@ namespace barApp.Controllers
             list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
 
             Dictionary<string, string> tableDetails = new Dictionary<string, string>();
-
-            string ImpuestoCalculo = System.Configuration.ConfigurationManager.AppSettings["Impuestos"].ToString();
-            if (ImpuestoCalculo.ToUpper() == "SI")
-            {
-                tableDetails.Add("Subtotal", (subtotal).ToString("$#,0.00"));
-            }
-            else
-            {
-
-                tableDetails.Add("Subtotal", (subtotal - itbis - propina).ToString("$#,0.00"));
-            }
-
-
+            tableDetails.Add("Subtotal", (subtotal - itbis-propina).ToString("$#,0.00"));
             tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
             tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
             Dictionary<string, string> tableTotal = new Dictionary<string, string>();
-            if (ImpuestoCalculo.ToUpper() == "SI")
-            {
-                tableTotal.Add("TOTAL", (subtotal + itbis + propina).ToString("$#,0.00"));
-            }
-            else
-            {
-
-                tableTotal.Add("TOTAL", (subtotal).ToString("$#,0.00"));
-            }
-          
+            tableTotal.Add("TOTAL", subtotal.ToString("$#,0.00"));
 
            
 
@@ -900,20 +849,11 @@ namespace barApp.Controllers
             printer.AddBarCode(id.ToString());
             printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
             printer.AddSpace(2);
-            if (ImpuestoCalculo.ToUpper() == "SI")
-            {
-                decimal DollarInfo = subtotal+itbis+ propina;
-                printer.AddString("Dollar $ " + (DollarInfo/Dollar).ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
-                decimal EuroInfo = subtotal +itbis + propina;
-                printer.AddString("Euro $ " + (EuroInfo / Euro).ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
-            }
-            else
-            {
-                decimal DollarInfo = subtotal / Dollar;
-                printer.AddString("Dollar $ " + DollarInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
-                decimal EuroInfo = subtotal / Euro;
-                printer.AddString("Euro $ " + EuroInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
-            }
+            decimal DollarInfo = subtotal / Dollar;
+            printer.AddString("Dollar $ " + DollarInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
+            decimal EuroInfo = subtotal / Euro;  
+            printer.AddString("Euro $ " + EuroInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
+
             printer.Print();
 
             return 1;
