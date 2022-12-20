@@ -56,6 +56,7 @@
         <EntityTypeShape EntityType="barbdModel.ProductoEliminado" Width="1.5" PointX="16" PointY="5.875" />
         <AssociationConnector Association="barbdModel.FK_ProductoEliminado_Cuadre" />
         <AssociationConnector Association="barbdModel.FK_ProductoEliminado_Producto" />
+        <AssociationConnector Association="barbdModel.FK_Pagos_Cuadre" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

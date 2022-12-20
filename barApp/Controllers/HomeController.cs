@@ -49,7 +49,7 @@ namespace barApp.Controllers
                 ViewBag.Depositos = entity.Factura.Include("venta").Where(x => x.numPago == 3 && x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
                 ViewBag.TarjetaCredito = entity.Factura.Include("venta").Where(x => x.numPago == 2 && x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
                 ViewBag.Credito = entity.Factura.Include("venta").Where(x=> x.Venta.idCuadre == cuadreActual && x.TieneCedito == true).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
-               
+                ViewBag.PagosCredito = entity.Pagos.Where(x => x.idCuadre == cuadreActual).DefaultIfEmpty(null).Sum(x => (float?)x.Monto ?? 0f);
                 ViewBag.Cortesia = entity.Factura.Include("venta").Include("detalleventa").Where(x => x.numPago == 0 &&  x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.Venta.total ?? 0f);
 
 
@@ -147,7 +147,7 @@ namespace barApp.Controllers
        
         //cuadrar
         [HttpPost]
-        public ActionResult Cuadrar(string Eectivo, string Deposito, string Tarjeta, string Nota, string VentasCuadre, string cortesiaReal)
+        public ActionResult Cuadrar(string Eectivo, string Deposito, string Tarjeta, string Nota, string VentasCuadre, string cortesiaReal, string PagosCredito)
         {
             try
             {
@@ -179,7 +179,7 @@ namespace barApp.Controllers
                     ListaArqueo.Add(new arqueo { Descripcion = "Eectivo", Valor = string.IsNullOrEmpty(Eectivo)?0:Convert.ToDecimal(Eectivo) });
                     ListaArqueo.Add(new arqueo { Descripcion = "Tarjeta", Valor = string.IsNullOrEmpty(Tarjeta) ? 0 : Convert.ToDecimal(Tarjeta) });
                     ListaArqueo.Add(new arqueo { Descripcion = "Deposito", Valor = string.IsNullOrEmpty(Deposito) ? 0 : Convert.ToDecimal(Deposito) });
-            
+                    ListaArqueo.Add(new arqueo { Descripcion = "Creditos Pagos", Valor = string.IsNullOrEmpty(PagosCredito) ? 0 : Convert.ToDecimal(PagosCredito) });
 
                     string[][] Arqueo =
                        ListaArqueo
@@ -450,11 +450,17 @@ namespace barApp.Controllers
                     correo.AddSpace(1);
                     //  printer.AddTableDetails(EspecialResumenEspecial, 6);
                     correo.AddSubtitle("Productos Eliminados");
+                    printer.AddSubtitle("Productos Eliminados");
                     correo.AddTable(new string[3] { "Producto", "Cant.", "No.Orden" }, ProductoEliminado);
+                    printer.AddTable(new string[3] { "Producto", "Cant.", "No.Orden" }, ProductoEliminado);
                     correo.AddSubtitle("Inventario Almacen");
+                    printer.AddSubtitle("Inventario Almacen");
                     correo.AddTable(new string[4] { "Producto", "Cantidad", "Precio", "Total" }, queryInventario);
+                    printer.AddTable(new string[4] { "Producto", "Cantidad", "Precio", "Total" }, queryInventario);
                     correo.AddSubtitle("Inventario Bar");
+                    printer.AddSubtitle("Inventario Bar");
                     correo.AddTable(new string[4] { "Producto", "Cantidad", "Precio", "Total" }, queryInventarioBar);
+                    printer.AddTable(new string[4] { "Producto", "Cantidad", "Precio", "Total" }, queryInventarioBar);
                     printer.AddSpace(2);
                     correo.AddSpace(1);
                     printer.AddDescriptionList(Ganancia, 2);
@@ -615,7 +621,7 @@ namespace barApp.Controllers
 
                     context.SaveChanges();
 
-                    cliente = context.Cliente.Find(_venta.idCliente).nMesa;
+                    cliente =  string.IsNullOrEmpty(context.Cliente.Find(_venta.idCliente).nMesa)?"0": context.Cliente.Find(_venta.idCliente).nMesa;
                     vendedor = context.Usuario.Find(_venta.idUsuario).nombre;
                     subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == venta.idVenta).Sum(vd => vd.subTotal);
                     descuentos = subtotal - (decimal)venta.Factura.Sum(f => f.total);
@@ -672,9 +678,10 @@ namespace barApp.Controllers
 
 
                     Dictionary<string, string> tableDetails = new Dictionary<string, string>();
-                    tableDetails.Add("Subtotal", (subtotal - itbis-propina).ToString("$#,0.00"));
+                    tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
+                    //tableDetails.Add("Subtotal", (subtotal - itbis-propina).ToString("$#,0.00"));
                     tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
-                    tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
+                    //tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
                     tableDetails.Add("Descuento", descuentos.ToString("$#,0.00") + " (" + venta.Factura[0].descuento.GetValueOrDefault(0).ToString() + "%)");
                     Dictionary<string, string> tableTotal = new Dictionary<string, string>();
                     tableTotal.Add("TOTAL", (subtotal - descuentos).ToString("$#,0.00"));
@@ -1092,6 +1099,38 @@ namespace barApp.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult DividirBuscarCuenta(int Cuenta)
+        {
+
+            using (var entity = new barbdEntities())
+            {
+                int idVenta = Convert.ToInt32(Cuenta);
+                var ListaDetalleVenta = entity.DetalleVenta.Include("Venta").Include("Producto").Where(x => x.idVenta == idVenta).ToList();
+
+                var dll = new List<Cliente>();
+
+                foreach (var item in ListaDetalleVenta)
+                {
+                    var ObjDetalleVenta = new Cliente()
+                    {
+                        idCliente = item.idDetalle,
+                        nombre = item.Producto.nombre + "-" + item.cantidad.ToString()
+
+
+                        // idCliente = item.idVenta,
+                        //   nombre = "Orden No." + item.idVenta + " -- " + item.nombre.ToUpper() + " -- " + item.total.ToString("$#,0.00")
+                    };
+
+                    dll.Add(ObjDetalleVenta);
+                }
+
+                return Json(dll, JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
+
         //transferir cuentas
         public ActionResult TransferirCuenta(Usuario usuario)
         {
@@ -1162,6 +1201,210 @@ namespace barApp.Controllers
                     return Json(Info, JsonRequestBehavior.AllowGet);
                 }
             }
+        }
+
+
+        public void NuevaOrden(Cliente cliente, int idUsuario, List<string> ListadoDividir)
+        {
+
+            using (var Context = new barbdEntities())
+            {
+                var ObjCliente = Context.Cliente.Add(cliente);
+                Context.SaveChanges();
+
+                var ObjVenta = new Venta
+                {
+                    total = 0,
+                    idCliente = ObjCliente.idCliente,
+                    fecha = DateTime.Now,
+                    IVA = Context.Impuesto.Single().Itbis.Value,
+                    idUsuario = idUsuario, //Convert.ToInt32(Session["IdUsuario"]),
+                    idCuadre = Context.Cuadre.AsEnumerable().SingleOrDefault(c => !c.cerrado.GetValueOrDefault(false)).idCuadre
+                };
+
+                var v = Context.Venta.Add(ObjVenta);
+                Context.SaveChanges();
+
+                foreach (var item in ListadoDividir)
+                {
+                    int idD = Convert.ToInt32(item);
+
+                    var detalleVenta = Context.DetalleVenta.Find(idD);
+
+                    var r = new DetalleVenta()
+                    {
+                        idVenta = v.idVenta,
+                        subTotal = detalleVenta.subTotal,
+                        idProducto = detalleVenta.idProducto,
+                        cantidad = detalleVenta.cantidad,
+                        despachada = detalleVenta.despachada,
+                        precioVenta = detalleVenta.precioVenta,
+                        precioEntrada = detalleVenta.precioEntrada,
+                        espcial = detalleVenta.espcial,
+                        idEspecial = detalleVenta.idEspecial
+                    };
+
+                    int iddetalleVenta;
+                    AgregarProductoCarrito(r, out iddetalleVenta);
+
+                    EliminarProductoCarrito(idD, v.idVenta, iddetalleVenta);
+
+                }
+
+            }
+
+        }
+        public void AgregarProductoCarrito(DetalleVenta detalleVenta, out int idDetalle)
+        {
+            using (var Context = new barbdEntities())
+            {
+
+                Producto producto = Context.Producto.Find(detalleVenta.idProducto);
+
+                //////////////Especiales
+
+                if (producto.especial == true)
+                {
+
+
+
+                    Context.DetalleVenta.Add(detalleVenta);
+
+                    Venta venta = Context.Venta.Find(detalleVenta.idVenta);
+                    venta.total += detalleVenta.subTotal;
+                    Context.Entry(venta).State = System.Data.Entity.EntityState.Modified;
+
+
+
+                    Context.SaveChanges();
+
+                    idDetalle = detalleVenta.idDetalle;
+
+
+
+
+
+                }
+
+                else
+                {
+
+
+
+                    Context.DetalleVenta.Add(detalleVenta);
+
+                    Venta venta = Context.Venta.Find(detalleVenta.idVenta);
+                    venta.total += detalleVenta.subTotal;
+                    Context.Entry(venta).State = System.Data.Entity.EntityState.Modified;
+
+
+
+                    Context.SaveChanges();
+                    idDetalle = detalleVenta.idDetalle;
+
+                }
+            }
+        }
+
+        public void EliminarProductoCarrito(int idDetalle, decimal Idventa, int idDetalle_)
+        {
+
+            using (barbdEntities context = new barbdEntities())
+            {
+
+
+                var validarEspecial = context.DetallesVentaEspecial.Where(x => x.idDetalle == idDetalle).Count();
+
+                if (validarEspecial > 0)
+                {
+
+                    var ddL = new List<DetallesVentaEspecial>();
+
+
+
+                    var detalleE = context.DetallesVentaEspecial.Where(x => x.idDetalle == idDetalle).ToList();
+
+                    foreach (var item in detalleE)
+                    {
+                        var ddObj = new DetallesVentaEspecial();
+
+                        ddObj.idVenta = Idventa;
+                        ddObj.idDetalle = idDetalle_;
+                        ddObj.idProducto = item.idProducto;
+                        ddObj.cantidad = item.cantidad;
+                        ddObj.idCuadre = item.idCuadre;
+                        ddObj.precioEntrada = item.precioEntrada;
+
+                        ddL.Add(ddObj);
+                    }
+
+                    context.DetallesVentaEspecial.RemoveRange(detalleE);
+                    context.DetallesVentaEspecial.AddRange(ddL);
+
+                    context.SaveChanges();
+
+
+                }
+
+                DetalleVenta detalle = context.DetalleVenta.Find(idDetalle);
+                context.Entry(detalle).State = System.Data.Entity.EntityState.Deleted;
+
+                Venta venta = context.Venta.Find(detalle.idVenta);
+                venta.total -= detalle.subTotal;
+
+                context.SaveChanges();
+
+
+
+            }
+        }
+
+        //Dividir cuentas
+        [HttpPost]
+        public JsonResult DividirReady(List<string> ListadoDividir)
+        {
+            try
+            {
+
+
+
+                using (var entity = new barbdEntities())
+                {
+                    int id = Convert.ToInt32(ListadoDividir[0]);
+                    var objD = entity.DetalleVenta.Find(id);
+                    var objV = entity.Venta.Find(objD.idVenta);
+                    var objC = entity.Cliente.Find(objV.idCliente);
+                    var M = entity.Cliente.Where(x => x.idMesa == null).First();
+
+                    var objCliente = new Cliente()
+                    {
+                        nombre = objC.nombre + "D",
+                        idMesa = M.idMesa
+
+                    };
+                    NuevaOrden(objCliente, Convert.ToInt32(objV.idUsuario), ListadoDividir);
+
+                    var Info = new InfoMensaje
+                    {
+                        Tipo = "Ready",
+                        Mensaje = "Cuenta Dividida con exito"
+                    };
+
+                    return Json(Info, JsonRequestBehavior.AllowGet);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                var Info = new InfoMensaje
+                {
+                    Tipo = "Error",
+                    Mensaje = ex.Message
+                };
+
+                return Json(Info, JsonRequestBehavior.AllowGet);
+            }
+
         }
 
         //Enlazar cuentas
@@ -2836,11 +3079,13 @@ namespace barApp.Controllers
 
                     if (monto <= credito.MontoRestante)
                     {
+                        int idCuadre = entity.Cuadre.Where(x => x.cerrado == false).Select(x => x.idCuadre).FirstOrDefault();
                         Pagos pago = new Pagos()
                         {
                             idCredito = id,
                             Monto = monto,
-                            Fecha = DateTime.Now
+                            Fecha = DateTime.Now,
+                            idCuadre = idCuadre
                         };
 
                         entity.Pagos.Add(pago);
@@ -3989,7 +4234,7 @@ namespace barApp.Controllers
                 venta.Cliente.idMesa = null;
 
                 result = context.SaveChanges();
-                cliente = venta.Cliente.nMesa;// "xxx";//context.Cliente.Find(venta.idCliente).nombre;
+                cliente = string.IsNullOrEmpty(venta.Cliente.nMesa)?"0":venta.Cliente.nMesa;// "xxx";//context.Cliente.Find(venta.idCliente).nombre;
                 vendedor = context.Usuario.Find(venta.idUsuario).nombre;
                 subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.subTotal);
                 itbis = context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.18m;
@@ -4019,9 +4264,9 @@ namespace barApp.Controllers
             list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
 
             Dictionary<string, string> tableDetails = new Dictionary<string, string>();
-            tableDetails.Add("Subtotal", (subtotal - itbis-propina).ToString("$#,0.00"));
+            tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
             tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
-            tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
+            ///tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
             Dictionary<string, string> tableTotal = new Dictionary<string, string>();
             tableTotal.Add("TOTAL", subtotal.ToString("$#,0.00"));
 

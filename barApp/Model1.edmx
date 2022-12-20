@@ -170,6 +170,7 @@
           <Property Name="idCredito" Type="int" Nullable="false" />
           <Property Name="Monto" Type="money" Nullable="false" />
           <Property Name="Fecha" Type="date" Nullable="false" />
+          <Property Name="idCuadre" Type="int" />
         </EntityType>
         <EntityType Name="Producto">
           <Key>
@@ -480,6 +481,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Pagos_Cuadre">
+          <End Role="Cuadre" Type="Self.Cuadre" Multiplicity="0..1" />
+          <End Role="Pagos" Type="Self.Pagos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cuadre">
+              <PropertyRef Name="idCuadre" />
+            </Principal>
+            <Dependent Role="Pagos">
+              <PropertyRef Name="idCuadre" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_producto_producto_CategoriaId">
           <End Role="Categoria" Type="Self.Categoria" Multiplicity="0..1" />
           <End Role="Producto" Type="Self.Producto" Multiplicity="*" />
@@ -677,6 +690,10 @@
             <End Role="Creditos" EntitySet="Creditos" />
             <End Role="Pagos" EntitySet="Pagos" />
           </AssociationSet>
+          <AssociationSet Name="FK_Pagos_Cuadre" Association="Self.FK_Pagos_Cuadre">
+            <End Role="Cuadre" EntitySet="Cuadre" />
+            <End Role="Pagos" EntitySet="Pagos" />
+          </AssociationSet>
           <AssociationSet Name="FK_producto_producto_CategoriaId" Association="Self.FK_producto_producto_CategoriaId">
             <End Role="Categoria" EntitySet="Categoria" />
             <End Role="Producto" EntitySet="Producto" />
@@ -749,6 +766,7 @@
           <NavigationProperty Name="Venta" Relationship="barbdModel.FK_Venta_Cuadre" FromRole="Cuadre" ToRole="Venta" />
           <NavigationProperty Name="DetallesVentaEspecial" Relationship="barbdModel.FK_DetallesVentaEspecial_Cuadre" FromRole="Cuadre" ToRole="DetallesVentaEspecial" />
           <NavigationProperty Name="ProductoEliminado" Relationship="barbdModel.FK_ProductoEliminado_Cuadre" FromRole="Cuadre" ToRole="ProductoEliminado" />
+          <NavigationProperty Name="Pagos" Relationship="barbdModel.FK_Pagos_Cuadre" FromRole="Cuadre" ToRole="Pagos" />
         </EntityType>
         <EntityType Name="Impuesto">
           <Key>
@@ -1044,6 +1062,10 @@
             <End Role="Producto" EntitySet="Producto" />
             <End Role="ProductoEliminado" EntitySet="ProductoEliminado" />
           </AssociationSet>
+          <AssociationSet Name="FK_Pagos_Cuadre" Association="barbdModel.FK_Pagos_Cuadre">
+            <End Role="Cuadre" EntitySet="Cuadre" />
+            <End Role="Pagos" EntitySet="Pagos" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="Gastos">
           <Key>
@@ -1304,6 +1326,8 @@
           <Property Name="Monto" Type="Decimal" Nullable="false" Precision="19" Scale="4" />
           <Property Name="Fecha" Type="DateTime" Nullable="false" Precision="0" />
           <NavigationProperty Name="Creditos" Relationship="barbdModel.FK_Pagos_Creditos" FromRole="Pagos" ToRole="Creditos" />
+          <Property Name="idCuadre" Type="Int32" />
+          <NavigationProperty Name="Cuadre" Relationship="barbdModel.FK_Pagos_Cuadre" FromRole="Pagos" ToRole="Cuadre" />
         </EntityType>
         <Association Name="FK_Pagos_Creditos">
           <End Type="barbdModel.Creditos" Role="Creditos" Multiplicity="1" />
@@ -1470,6 +1494,18 @@
             </Principal>
             <Dependent Role="ProductoEliminado">
               <PropertyRef Name="IdProducto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Pagos_Cuadre">
+          <End Type="barbdModel.Cuadre" Role="Cuadre" Multiplicity="0..1" />
+          <End Type="barbdModel.Pagos" Role="Pagos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cuadre">
+              <PropertyRef Name="idCuadre" />
+            </Principal>
+            <Dependent Role="Pagos">
+              <PropertyRef Name="idCuadre" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1698,6 +1734,7 @@
           <EntitySetMapping Name="Pagos">
             <EntityTypeMapping TypeName="barbdModel.Pagos">
               <MappingFragment StoreEntitySet="Pagos">
+                <ScalarProperty Name="idCuadre" ColumnName="idCuadre" />
                 <ScalarProperty Name="Fecha" ColumnName="Fecha" />
                 <ScalarProperty Name="Monto" ColumnName="Monto" />
                 <ScalarProperty Name="idCredito" ColumnName="idCredito" />

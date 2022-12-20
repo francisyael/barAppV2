@@ -791,7 +791,7 @@ namespace barApp.Controllers
                 venta.Cliente.idMesa = null;
 
                 result = context.SaveChanges();
-                cliente = venta.Cliente.nMesa;// "xxx";//context.Cliente.Find(venta.idCliente).nombre;
+                cliente = string.IsNullOrEmpty(venta.Cliente.nMesa)?"0":venta.Cliente.nMesa;// "xxx";//context.Cliente.Find(venta.idCliente).nombre;
                 vendedor = context.Usuario.Find(venta.idUsuario).nombre;
                 subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.subTotal);
                 itbis = context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.18m;
@@ -821,9 +821,9 @@ namespace barApp.Controllers
             list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
 
             Dictionary<string, string> tableDetails = new Dictionary<string, string>();
-            tableDetails.Add("Subtotal", (subtotal - itbis-propina).ToString("$#,0.00"));
+            tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
             tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
-            tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
+            //tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
             Dictionary<string, string> tableTotal = new Dictionary<string, string>();
             tableTotal.Add("TOTAL", subtotal.ToString("$#,0.00"));
 

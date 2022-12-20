@@ -69,7 +69,7 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="h5 my-1 font-weight-bold text-gray-800">Enlazar</div>
+                            <div class="h5 my-1 font-weight-bold text-gray-800">Enlazar/Dividir</div>
                             <div class="text-xs font-weight-bold text-gray-500 text-uppercase">
                                 Cuenta
                             </div>
@@ -155,6 +155,7 @@
                             <dd>--</dd>
                             <dt class="text-danger font-weight-bold h5 mb-0">Descuentos</dt>
                             <dd>--</dd>
+                            <dt class="text-success font-weight-bold h5 mb-0">Creditos Pagos</dt>
                         </dl>
                         <dl>
 
@@ -173,6 +174,8 @@
                             <dd id="GastosCuadre">$0.00</dd>
                             <dt class="text-danger font-weight-bold h5 mb-0">--</dt>
                             <dd id="VentaDescuentos">$0.00</dd>
+                            <dt class="text-success font-weight-bold h5 mb-0">--</dt>
+                            <dd id="CreditoPagos">$0.00</dd>
                         </dl>
                         <dl>
                             <dt class="text-success font-weight-bold h5 mb-0">--</dt>
@@ -182,6 +185,15 @@
                             <dd id="txtVentasCredito_Debito"><input type="number" id="deposito_" name="deposito_" value="0" /></dd>
                             <dt class="text-success font-weight-bold h5 mb-0">--</dt>
                             <dd id="txtVentasEfectivo"><input type="number" id="credito_" name="credito_" value="0" /></dd>
+                            <dd>--</dd>
+                            <dd>--</dd>
+                            <dd>--</dd>
+                            <dd>--</dd>
+                            <dd>--</dd>
+                            <dd>--</dd>
+                            <dd>--</dd>
+                            <dd id="txtCreditoPagos"><input type="number" id="PagosCredito_" name="PagosCredito_" value="0" /></dd>
+
                         </dl>
 
                     </div>
@@ -223,7 +235,7 @@
                                 <input id="NumOrdenFacturar" type="text" class="form-control" />
                             </div>
                         </div>
-                      
+
                         <div class="row">
                             <div class="col-6">
                                 <h5 class="font-weight-bold">--</h5>
@@ -292,7 +304,7 @@
                             </div>
                         </div>
                     </div>
-                    </div>
+                </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
@@ -369,6 +381,54 @@
         </div>
     </div>
 
+
+    <div class="modal fade" id="Dividir" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content border-secondary">
+                <div class="modal-header bg-warning text-white align-items-center">
+                    <span class="fas fa-divide fa-3x mr-4"></span>
+                    <h1 class="modal-title font-weight-bold">Dividir cuenta</h1>
+                    <span class="fas fa-times fa-lg p-3" data-dismiss="modal" style="margin: -1rem -1rem -1rem auto; cursor: pointer"></span>
+                </div>
+                <div class="modal-body">
+                    <div class="col mr-2">
+                        <h5 class="font-weight-bold">Camarer@@</h5>
+                        @Html.DropDownList("DividirOrigen", new SelectList(ViewBag.VendedorOrigen, "idUsuario", "nombre", 0), "Seleccionar", new { @class = "form-control", @onchange = "Dividir()" })
+                        <br />
+                        <h5 class="font-weight-bold">Cuentas</h5>
+                        @Html.ListBox("lbxOrigenDividir", new SelectList(ViewBag.ClienteOrigen, "VendedorId", "Nombre", 1), new { @class = "form-control select-warning", @style = "height:225px", @onclick = "DividirBuscarOrdnes()" })
+                        @*@Html.ListBox("lbxDestinoDividir", new SelectList(ViewBag.ClienteOrigen, "VendedorId", "Nombre", 1), new { @class = "form-control", @style = "height:225px" })*@
+                        <div class="container">
+                            <div class="row">
+
+                                <div class="col-sm">
+                                    <h5 class="font-weight-bold">Ordenes</h5>
+                                    @Html.ListBox("lbxOrigenOrdenes", new SelectList(ViewBag.ClienteOrigen, "VendedorId", "Nombre", 1), new { @class = "form-control select-warning", @style = "height:225px" })
+                                </div>
+                                <span class="fas fa-long-arrow-alt-right fa-3x mr-4" onclick="CuentaDividida()"></span>
+                                <div class="col-sm">
+                                    <h5 class="font-weight-bold">Cuenta dividida</h5>
+                                    @Html.ListBox("lbxOrigenDividirCuenta", new SelectList(ViewBag.ClienteOrigen, "VendedorId", "Nombre", 1), new { @class = "form-control select-warning", @style = "height:225px" })
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-6 col-md-6"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" onclick="LimpiarDividirCuentas()">Limpiar</button>
+                    <button type="button" id="dividirBTN" class="btn btn-warning" onclick="DividirReady()">Dividir</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
     @*Codigo administrador...................................................................*@
     <div class="modal fade" id="Administrador" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -408,23 +468,23 @@
                         <h5 class="font-weight-bold">Cantidad</h5>
                         <input id="CantidadM" autofocus type="number" onkeyup="if (event.keyCode === 13) {ModificarOrden_() }" class="form-control" />
                         @*<script>
-                            $('#CantidadM').keyboard({
-                                layout: 'custom',
-                                customLayout: {
-                                    'normal': [
-                                        '1 2 3',
-                                        '4 5 6',
-                                        '7 8 9',
-                                        '{bksp} 0 {a}'
-                                    ]
-                                },
-                                maxLength: 4,
-                                restrictInput: false, // Prevent keys not in the displayed keyboard from being typed in
-                                preventPaste: true,  // prevent ctrl-v and right click
-                                autoAccept: true,
-                                openOn: 'click'
-                            })
-                        </script>*@
+                                $('#CantidadM').keyboard({
+                                    layout: 'custom',
+                                    customLayout: {
+                                        'normal': [
+                                            '1 2 3',
+                                            '4 5 6',
+                                            '7 8 9',
+                                            '{bksp} 0 {a}'
+                                        ]
+                                    },
+                                    maxLength: 4,
+                                    restrictInput: false, // Prevent keys not in the displayed keyboard from being typed in
+                                    preventPaste: true,  // prevent ctrl-v and right click
+                                    autoAccept: true,
+                                    openOn: 'click'
+                                })
+                            </script>*@
 
                     </div>
                 </div>
@@ -485,6 +545,30 @@
         </div>
     </div>
 
+    <div class="modal fade" id="SeleccionEnlazarDividir" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border-secondary">
+                <div class="modal-header bg-success text-white align-items-end">
+                    <span class="fas fa-shopping-cart fa-3x mr-4"></span>
+                    <h1 class="modal-title font-weight-bold">Enlazar/Dividir</h1>
+                    <span class="fas fa-times fa-lg p-3" data-dismiss="modal" style="margin: -1rem -1rem -1rem auto; cursor: pointer"></span>
+                </div>
+                <div class="modal-body" style="align-self:center">
+                    <div class="col mr-2">
+                        @*<h5 class="font-weight-bold">Seleccion</h5>*@
+                        <button data-toggle="modal" onclick="EnlazarOrderOpen()" class="btn btn-link"> <i class="fas fa-link fa-3x"></i> </button>
+                        <button data-toggle="modal" onclick="DividirOrderOpen()" class="btn btn-link"> <i class="fas fa-divide fa-3x"></i> </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    @*<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-success" onclick="EliminarValidar()">Continuar</button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="AdministradorFacturas" tabindex="-1" role="dialog" aria-labelledby="Cuadre" aria-hidden="true" data-backdrop="true" data-keyboard="true">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content border-secondary">
@@ -531,9 +615,9 @@
 
 }
 
-    <script src="~/vendor/chart.js/Chart.min.js"></script>
+<script src="~/vendor/chart.js/Chart.min.js"></script>
 
-    <script type="text/javascript">
+<script type="text/javascript">
 
 
 
@@ -676,6 +760,7 @@
         let cortesia = @(ViewBag.Cortesia)
         let descuento = @(ViewBag.Descuento)
         let CortesiaReal = @(ViewBag.CortesiaReal)
+        let PagosCredito = @(ViewBag.PagosCredito)
 
         $('#VentasCuadre').text(formatter.format(ventas -cortesia-  descuento));
         $('#GastosCuadre').text(formatter.format(gastos));
@@ -686,11 +771,11 @@
         $('#VentasEnviadoCredito').text(formatter.format(credito));
         $('#VentasCortesia').text(formatter.format(CortesiaReal));
         $('#VentaDescuentos').text(formatter.format(descuento));
-
+        $('#CreditoPagos').text(formatter.format(PagosCredito));
     }
 
         function CuadreReady() {
-                    
+
         $("#enviarCierre").prop('disabled', true);
             var arqueo = {}
 
@@ -699,7 +784,8 @@
             arqueo.Tarjeta = $("#credito_").val()
             arqueo.Nota = $("#nota_").val()
             arqueo.VentasCuadre = $("#VentasCuadre").text()
-            arqueo.cortesiaReal =  $("#VentasCortesia").text()
+            arqueo.cortesiaReal = $("#VentasCortesia").text()
+            arqueo.PagosCredito = $("#PagosCredito_").val()
 
         $.ajax({
             url: "../Home/Cuadrar",
@@ -983,7 +1069,8 @@
                     //FacturarReady();
                     $('#CodigoAdminEnlazar').val("")
                     $("#AdministradorEnlazar").modal("hide")
-                    $("#Enlazar").modal("show")
+                    //$("#Enlazar").modal("show")
+                    $("#SeleccionEnlazarDividir").modal("show")
                 }
                 else if (response.Tipo == "Notificacion") {
                     alert(response.Mensaje);
@@ -993,11 +1080,13 @@
                 }
             }
         });
-    }
+        }
+
+
 
         function FacturarReady() {
 
-       
+
         let x = document.getElementById("lbxFacturar");
         let y = document.getElementById("VendedorFacturar");
 
@@ -1022,8 +1111,7 @@
                             total: element.value,
                             numPago: element.getAttribute('data-type'),
                             descuento: descuento * 100,
-                            idUsuario: $('#CreditoFacturarInput').val(),
-                            rnc : $('#RNCNUMERO').val()
+                            idUsuario: $('#CreditoFacturarInput').val()
                         });
                     });
                 } else {
@@ -1036,8 +1124,7 @@
                     total: total,
                     numPago: modo,
                     descuento: descuento * 100,
-                    idUsuario: $('#CreditoFacturarInput').val(),
-                    rnc : $('#RNCNUMERO').val()
+                    idUsuario: $('#CreditoFacturarInput').val()
                 });
             }
         $("#facturarR").prop('disabled', true);
@@ -1051,7 +1138,6 @@
                     if (response.Tipo == "Ready") {
                         $('#Administrador').modal('hide');
                         $("#lbxFacturar option:selected").remove();
-                        $("#RNCNUMERO").val("");
                         FacturarHandleChange();
 
                         alert(response.Mensaje);
@@ -1161,12 +1247,18 @@
     //Enlazar....................................................................
     function EnlazarClear() {
               setTimeout(function() {
-          $("#CodigoAdminEnlazar").focus();
+                  $("#CodigoAdminEnlazar").focus();
+
       }, 500);
 
         $("#lbxDestinoEnlazar").empty();
         $("#lbxOrigenEnlazar").empty();
         $('#EnlazarOrigen').prop('selectedIndex', 0);
+
+        $("#lbxOrigenDividirCuenta").empty();
+        $("#lbxOrigenOrdenes").empty();
+        $("#lbxOrigenDividir").empty();
+        $('#DividirOrigen').prop('selectedIndex', 0);
 
         $("#AdministradorEnlazar").modal("show")
 
@@ -1203,7 +1295,131 @@
                 x.appendChild(docfrag);
             },
         });
-    }
+        }
+
+        function Dividir() {
+        $("#lbxOrigenDividirCuenta").empty();
+        $("#lbxOrigenOrdenes").empty();
+            $("#lbxDestinoDividir").empty();
+                $("#lbxDestinoDividir").empty();
+        var y = document.getElementById("DividirOrigen");
+        var x = document.getElementById("lbxOrigenDividir");
+        var option = document.createElement("option");
+        var docfrag = document.createDocumentFragment();
+
+        var Usuario = {}
+
+        Usuario.idUsuario = y.options[y.selectedIndex].value;
+
+        $("#lbxOrigenDividir").empty();
+        $.ajax({
+            url: "../Home/TransferirCuenta",
+            data: JSON.stringify(Usuario),
+            type: "POST",
+            contentType: 'application/json;charset=UTF-8',
+            dataType: 'json',
+            success: function (Transferir) {
+
+                for (var Clientes of Transferir) {
+
+                    docfrag.appendChild(new Option(Clientes.nombre, Clientes.idCliente));
+                    //option.text = Clientes.Vendedor
+                    //option.value = Clientes.VendedorId;
+                    //x.options.add(option);
+                }
+                x.appendChild(docfrag);
+            },
+        });
+        }
+
+        function DividirBuscarOrdnes() {
+            $("#lbxOrigenOrdenes").empty();
+            $("#lbxOrigenDividirCuenta").empty();
+            var x = document.getElementById("lbxOrigenOrdenes");
+            var docfrag = document.createDocumentFragment();
+
+            $("#lbxOrigenDividir option").click(function () {
+                var selectedOp1 = $('#lbxOrigenDividir option:selected');
+
+                $.ajax({
+            url: "../Home/DividirBuscarCuenta?cuenta=" + selectedOp1.val(),
+            type: "POST",
+            contentType: 'application/json;charset=UTF-8',
+            dataType: 'json',
+            success: function (Transferir) {
+                   $("#lbxOrigenOrdenes").empty();
+                for (var Clientes of Transferir) {
+
+                    docfrag.appendChild(new Option(Clientes.nombre, Clientes.idCliente));
+                    //option.text = Clientes.Vendedor
+                    //option.value = Clientes.VendedorId;
+                    //x.options.add(option);
+                }
+                x.appendChild(docfrag);
+
+            },
+                });
+
+
+
+            }
+
+            );
+
+        }
+
+
+        function DividirReady()
+        {
+           var validar = document.getElementById("lbxOrigenDividirCuenta").options.length;
+
+            if (validar >= 1) {
+
+                    $("#dividirBTN").prop('disabled', true);
+
+                var ListadoDividir = [];
+                var y = document.getElementById("lbxOrigenDividirCuenta").childNodes;
+                var contador = 0;
+
+                for (var destinoDividir of y) {
+                    ListadoDividir[contador] = destinoDividir.value
+                    contador++
+                }
+
+                 $.ajax({
+            url: "../Home/DividirReady",
+            type: "POST",
+            async: false,
+            data: { ListadoDividir: ListadoDividir },
+            success: function (response) {
+                if (response.Tipo == "Ready") {
+                    LimpiarDividirCuentas()
+                    $("#dividirBTN").prop('disabled', false);
+                    window.alert(response.Mensaje);
+                }
+                else if (response.Tipo == "Error") {
+                          $("#dividirBTN").prop('disabled', false);
+                    window.alert(response.Mensaje);
+                }
+                else {
+                          $("#dividirBTN").prop('disabled', false);
+                    window.alert("Error Desconocido");
+                }
+            }
+        })
+
+
+            }
+            else {
+                      $("#dividirBTN").prop('disabled', false);
+                alert("Favor dividir cuenta")
+            }
+
+
+
+        }
+
+
 
     function EnlazarReady() {
         var ListadoEnlazar = [];
@@ -1282,10 +1498,10 @@
 
           function FacturasClear() {
               setTimeout(function () {
-              
+
                   $("#CodigoFactura").focus();
               }, 500);
-       
+
                 $("#AdministradorFacturas").modal("show")
 
 
@@ -1315,9 +1531,9 @@
 
         function Modificardetalleventa(id, idv) {
 
-                       
+
        var  confirmar = prompt("(Modificar Orden) Nueva Cantidad?")
-                    
+
 
             if (confirmar) {
 
@@ -1325,7 +1541,7 @@
 
 
                 if (confirmarValida)
-                {                                                         
+                {
 
                     $('#cargador').show()
                     $.ajax({
@@ -1350,7 +1566,7 @@
                             //element.parents("tr").fadeOut("normal", function () {
                             //    element.parents("tr").remove();
 
-                            //    restar();           
+                            //    restar();
 
                             //});
                         }, Error: function (response) {
@@ -1372,16 +1588,16 @@
                 }
             }
             else {
-             
+
             }
-           
+
         }
 
 
         function Eliminardetalleventa(id, idv) {
 
-      
-                                       
+
+
 
                     $('#cargador').show()
                     $.ajax({
@@ -1397,7 +1613,7 @@
                             //element.parents("tr").fadeOut("normal", function () {
                             //    element.parents("tr").remove();
 
-                            //    restar();           
+                            //    restar();
 
                             //});
                         }, Error: function () { $('#cargador').hide() }
@@ -1409,7 +1625,7 @@
                         //    alert(response.responseText);
                         //}
                     });
-          
+
 
         }
 
@@ -1454,7 +1670,7 @@
             var TotalPagar = $('#TotalFacturar').text()
 
          var temp = TotalPagar.replace(/[^0-9.-]+/g,"");
-        
+
 
             var Tarjeta = parseFloat(temp) - parseFloat(efectivo)
 
@@ -1463,24 +1679,62 @@
 
            // alert(Tarjeta.toString())
 
-      
+
         });
 
-    </script>
+        function EnlazarOrderOpen() {
 
-
-    <style>
-        .buttonload {
-            background-color: #04AA6D; /* Green background */
-            border: none; /* Remove borders */
-            color: white; /* White text */
-            padding: 12px 24px; /* Some padding */
-            font-size: 16px; /* Set a font-size */
+            $("#SeleccionEnlazarDividir").modal("hide")
+            $("#Enlazar").modal("show")
         }
 
-        /* Add a right margin to each icon */
-        .fa {
-            margin-left: -12px;
-            margin-right: 8px;
+        function DividirOrderOpen() {
+              $("#SeleccionEnlazarDividir").modal("hide")
+            $("#Dividir").modal("show")
         }
-    </style>
+
+        function CuentaDividida() {
+
+             var validar = document.getElementById("lbxOrigenOrdenes").options.length;
+
+            if (validar >= 2)
+            {
+                 var selectedOp1 = $('#lbxOrigenOrdenes option:selected');
+                 $('#lbxOrigenDividirCuenta').append($(selectedOp1).clone());
+                  $(selectedOp1).remove();
+
+            }
+            else
+            {
+                alert("La cuenta originar debe tener al menos una orden")
+            }
+
+
+        }
+
+        function LimpiarDividirCuentas() {
+
+        $("#lbxOrigenDividirCuenta").empty();
+        $("#lbxOrigenOrdenes").empty();
+        $("#lbxOrigenDividir").empty();
+        $('#DividirOrigen').prop('selectedIndex', 0);
+        }
+
+</script>
+
+
+<style>
+    .buttonload {
+        background-color: #04AA6D; /* Green background */
+        border: none; /* Remove borders */
+        color: white; /* White text */
+        padding: 12px 24px; /* Some padding */
+        font-size: 16px; /* Set a font-size */
+    }
+
+    /* Add a right margin to each icon */
+    .fa {
+        margin-left: -12px;
+        margin-right: 8px;
+    }
+</style>
