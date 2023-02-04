@@ -1111,7 +1111,8 @@
                             total: element.value,
                             numPago: element.getAttribute('data-type'),
                             descuento: descuento * 100,
-                            idUsuario: $('#CreditoFacturarInput').val()
+                            idUsuario: $('#CreditoFacturarInput').val(),
+                             rnc : $('#RNCNUMERO').val()
                         });
                     });
                 } else {
@@ -1124,7 +1125,8 @@
                     total: total,
                     numPago: modo,
                     descuento: descuento * 100,
-                    idUsuario: $('#CreditoFacturarInput').val()
+                    idUsuario: $('#CreditoFacturarInput').val(),
+                     rnc : $('#RNCNUMERO').val()
                 });
             }
         $("#facturarR").prop('disabled', true);
@@ -1138,6 +1140,7 @@
                     if (response.Tipo == "Ready") {
                         $('#Administrador').modal('hide');
                         $("#lbxFacturar option:selected").remove();
+                             $("#RNCNUMERO").val("");
                         FacturarHandleChange();
 
                         alert(response.Mensaje);

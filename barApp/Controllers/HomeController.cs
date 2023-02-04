@@ -454,13 +454,13 @@ namespace barApp.Controllers
                     correo.AddTable(new string[3] { "Producto", "Cant.", "No.Orden" }, ProductoEliminado);
                     printer.AddTable(new string[3] { "Producto", "Cant.", "No.Orden" }, ProductoEliminado);
                     correo.AddSubtitle("Inventario Almacen");
-                    printer.AddSubtitle("Inventario Almacen");
+                    //printer.AddSubtitle("Inventario Almacen");
                     correo.AddTable(new string[4] { "Producto", "Cantidad", "Precio", "Total" }, queryInventario);
-                    printer.AddTable(new string[4] { "Producto", "Cantidad", "Precio", "Total" }, queryInventario);
+                    //printer.AddTable(new string[4] { "Producto", "Cantidad", "Precio", "Total" }, queryInventario);
                     correo.AddSubtitle("Inventario Bar");
-                    printer.AddSubtitle("Inventario Bar");
+                    //printer.AddSubtitle("Inventario Bar");
                     correo.AddTable(new string[4] { "Producto", "Cantidad", "Precio", "Total" }, queryInventarioBar);
-                    printer.AddTable(new string[4] { "Producto", "Cantidad", "Precio", "Total" }, queryInventarioBar);
+                    //printer.AddTable(new string[4] { "Producto", "Cantidad", "Precio", "Total" }, queryInventarioBar);
                     printer.AddSpace(2);
                     correo.AddSpace(1);
                     printer.AddDescriptionList(Ganancia, 2);
@@ -719,7 +719,7 @@ namespace barApp.Controllers
                     }
                     else if (!string.IsNullOrEmpty(venta.Factura[0].idUsuario.ToString()))
                     {
-                        printer.AddString("Creditio");
+                        printer.AddString("Credito");
                     }
                     else if (venta.Factura[0].numPago == 0)
                     {
