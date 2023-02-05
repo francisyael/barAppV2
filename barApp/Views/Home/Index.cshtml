@@ -627,9 +627,11 @@
     var detalles = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Detalles));
     var usuarios = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.VendedorOrigen));
     var chartCuentas;
+    var impuesto = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Impuesto_));
     var chartMontos;
 
     $(function () {
+        let imp = impuesto;
         let cuentasAbiertas = cuentas.filter(c => !c.ordenFacturada);
         let cuentasCerradas = cuentas.filter(c => c.ordenFacturada);
         let cuentasAbiertasIds = cuentasAbiertas.map(c => c.idVenta);
@@ -664,8 +666,8 @@
                 aspectRatio: 2
             }
         });
-
-        chartMontos = new Chart($('#montos')[0], {
+        if (imp=="NO") {
+             chartMontos = new Chart($('#montos')[0], {
             type: 'bar',
             data: {
                 labels: ["Cerradas", "Abiertas"],
@@ -695,6 +697,40 @@
                 aspectRatio: 2
             },
         });
+        }
+        else {
+             chartMontos = new Chart($('#montos')[0], {
+            type: 'bar',
+            data: {
+                labels: ["Cerradas", "Abiertas"],
+                datasets: [{
+                    barThickness: 30,
+                    minBarLength: 2,
+                    data: [montoCerradas*0.28+montoCerradas, montoAbiertas*0.28+montoAbiertas],
+                    backgroundColor: ['#1cc88a', '#4e73df'],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }],
+                isMoney: true
+            },
+            options: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 30,
+                        boxWidth: 15,
+                        fontSize: 16,
+                        fontColor: '#5a5c69',
+                        fontStyle: 'bold',
+                        fullWidth: false,
+                        generateLabels: _generateLabels
+                    }
+                },
+                cutoutPercentage: 70,
+                aspectRatio: 2
+            },
+        });
+        }
+
     });
 
     function _generateLabels(chart) {

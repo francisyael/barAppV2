@@ -13,6 +13,7 @@ namespace barApp.Controllers
 
     public class HomeController : Controller
     {
+          private string IMPUESTOS = System.Configuration.ConfigurationManager.AppSettings["IMPUESTO"].ToString();
         
         public HomeController()
         {
@@ -33,7 +34,7 @@ namespace barApp.Controllers
                     return RedirectToAction("Index", "Login");
 
                 }
-
+                ViewBag.Impuesto_ = IMPUESTOS;
                 ViewBag.VendedorOrigen = entity.Usuario.Where(x => x.idRol == 2 || x.idRol == 7 && x.activo == true).Select(x => new { x.idUsuario, x.nombre }).ToList();
                 ViewData["ModoPago"] = entity.ModoPago.Where(m => m.numPago > 0).ToList();
                 ViewData["ClienteOrigen"] = new List<Cliente>();

@@ -8,7 +8,7 @@ namespace barApp.Controllers
 {
     public class OrdenController : Controller
     {
-       
+        private string IMPUESTOS = System.Configuration.ConfigurationManager.AppSettings["IMPUESTO"].ToString();
         // GET: Orden
         public ActionResult Index()
         {
@@ -127,7 +127,7 @@ namespace barApp.Controllers
                         Context.DetalleVenta.Add(detalleVenta);
 
                         Venta venta = Context.Venta.Find(detalleVenta.idVenta);
-                        venta.total += detalleVenta.subTotal;
+                        venta.total += IMPUESTOS == "NO"?detalleVenta.subTotal: detalleVenta.subTotal*0.28f+ detalleVenta.subTotal;
                         Context.Entry(venta).State = System.Data.Entity.EntityState.Modified;
 
                         Context.SaveChanges();
@@ -227,7 +227,7 @@ namespace barApp.Controllers
                     Context.DetalleVenta.Add(detalleVenta);
 
                     Venta venta = Context.Venta.Find(detalleVenta.idVenta);
-                    venta.total += detalleVenta.subTotal;
+                    venta.total += IMPUESTOS == "NO" ? detalleVenta.subTotal : detalleVenta.subTotal * 0.28f+ detalleVenta.subTotal;
                     Context.Entry(venta).State = System.Data.Entity.EntityState.Modified;
 
                     Context.SaveChanges();
@@ -324,7 +324,7 @@ namespace barApp.Controllers
 
 
                 Venta venta = context.Venta.Find(detalle.idVenta);
-                venta.total -= detalle.subTotal;
+                venta.total -=  IMPUESTOS == "NO" ? detalle.subTotal : detalle.subTotal * 0.28f + detalle.subTotal;
 
                         
 
@@ -427,7 +427,7 @@ namespace barApp.Controllers
 
 
                             Venta venta = context.Venta.Find(detalleVenta.idVenta);
-                            venta.total += detalleVenta.subTotal;     
+                            venta.total += IMPUESTOS=="NO"?detalleVenta.subTotal: detalleVenta.subTotal*0.28f + detalleVenta.subTotal;     
                             context.Entry(venta).State = System.Data.Entity.EntityState.Modified;
 
                             context.SaveChanges();
@@ -473,7 +473,7 @@ namespace barApp.Controllers
                             context.Entry(detalle).State = System.Data.Entity.EntityState.Deleted;
 
                             Venta venta_ = context.Venta.Find(detalle.idVenta);
-                            venta_.total -= detalle.subTotal;
+                            venta_.total -= IMPUESTOS == "NO" ? detalleVenta.subTotal : detalleVenta.subTotal * 0.28f + detalleVenta.subTotal;
 
                             context.SaveChanges();
 
@@ -541,8 +541,8 @@ namespace barApp.Controllers
                     context.SaveChanges();
 
                     Venta venta = context.Venta.Find(detalleVenta.idVenta);
-                    venta.total -= subt;
-                    venta.total += detalleVenta.subTotal;
+                    venta.total -= IMPUESTOS == "NO" ? subt : subt * 0.28f + subt;
+                    venta.total += IMPUESTOS == "NO" ? detalleVenta.subTotal : detalleVenta.subTotal * 0.28f + detalleVenta.subTotal ;
                     context.Entry(venta).State = System.Data.Entity.EntityState.Modified;
 
                     context.SaveChanges();
@@ -821,13 +821,30 @@ namespace barApp.Controllers
             list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
 
             Dictionary<string, string> tableDetails = new Dictionary<string, string>();
-            tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
-            tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
-            //tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
-            Dictionary<string, string> tableTotal = new Dictionary<string, string>();
-            tableTotal.Add("TOTAL", subtotal.ToString("$#,0.00"));
 
-           
+             Dictionary<string, string> tableTotal = new Dictionary<string, string>();
+            if (IMPUESTOS=="NO")
+            {
+                tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
+                tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
+                //tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
+                //Dictionary<string, string> tableTotal = new Dictionary<string, string>();
+                tableTotal.Add("TOTAL", subtotal.ToString("$#,0.00"));
+
+            }
+            else
+            {
+                decimal t = subtotal + itbis + propina;
+                tableDetails.Add("Subtotal", (subtotal).ToString("$#,0.00"));
+                tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
+                tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
+                //Dictionary<string, string> tableTotal = new Dictionary<string, string>();
+                tableTotal.Add("TOTAL", t.ToString("$#,0.00"));
+
+            }
+
+
+
 
             printer.AddTitle("Prefactura");
             printer.AddSpace(2);
