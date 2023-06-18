@@ -460,12 +460,12 @@
             $("#detalle tbody tr").val("");
         }
         function sumar() {
-            total = total + subtotal * 0.28 + subtotal;
+            total = total + subtotal;
             $("#TotalaPagar").val(total).trigger('change');
 
         }
         function restar() {
-            total = total - valor* 0.28 - valor;
+            total = total - valor;
             $("#TotalaPagar").val(total).trigger('change'); ////////////////////////////////
                  $('#Administrador').modal('hide');
         }

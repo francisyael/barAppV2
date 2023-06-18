@@ -11,6 +11,9 @@
                 No.Venta
             </th>
             <th>
+                No.Factura
+            </th>
+            <th>
                 Vended@@r
             </th>
             <th>
@@ -33,6 +36,8 @@
 
             <th>NCF</th>
 
+            <th>ITBIS</th>
+
             <th>Prop.</th>
 
             <th>Detalles</th>
@@ -46,6 +51,10 @@
 
         <td>
             @item.idVenta.ToString("0")
+        </td>
+
+        <td>
+            @item.Factura.Single().numFactura
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Usuario.nombre)
@@ -151,7 +160,17 @@
 
 
         </td>
-         
+        <td>
+            @{
+                float ITBIS;
+
+                ITBIS = @item.total * 0.18f;
+
+            }
+
+            @ITBIS.ToString("$#,0.00")
+        </td>
+
         <td>
             @{
                 float Propina;

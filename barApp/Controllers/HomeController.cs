@@ -13,8 +13,9 @@ namespace barApp.Controllers
 
     public class HomeController : Controller
     {
-          private string IMPUESTOS = System.Configuration.ConfigurationManager.AppSettings["IMPUESTO"].ToString();
-        
+        private string itbis_ = System.Configuration.ConfigurationManager.AppSettings["itbis"].ToString();
+        private string propina_ = System.Configuration.ConfigurationManager.AppSettings["propina"].ToString();
+
         public HomeController()
         {
             ViewData["Alert"] = null;
@@ -34,7 +35,7 @@ namespace barApp.Controllers
                     return RedirectToAction("Index", "Login");
 
                 }
-                ViewBag.Impuesto_ = IMPUESTOS;
+
                 ViewBag.VendedorOrigen = entity.Usuario.Where(x => x.idRol == 2 || x.idRol == 7 && x.activo == true).Select(x => new { x.idUsuario, x.nombre }).ToList();
                 ViewData["ModoPago"] = entity.ModoPago.Where(m => m.numPago > 0).ToList();
                 ViewData["ClienteOrigen"] = new List<Cliente>();
@@ -43,25 +44,25 @@ namespace barApp.Controllers
                 IEnumerable<Venta> cuentas = entity.Venta.Where(v => v.idCuadre == cuadreActual).AsEnumerable().Select(v => UntrackedVenta(v));
                 ViewBag.Cuentas = cuentas.ToArray();
                 ViewBag.Detalles = entity.DetalleVenta.AsEnumerable().Where(dv => cuentas.Select(c => c.idVenta).Contains(dv.idVenta)).Select(dv => UntrackedDetalle(dv)).ToArray();
-                ViewBag.Vendedores = entity.Usuario.Where(u => u.idRol == 2 || u.idRol == 7 && u.activo ==true).AsEnumerable().Select(u => UntrackedUsuario(u)).ToArray();
-                ViewBag.Usuarios = entity.Usuario.Where(x => x.activo ==true).AsEnumerable().Select(u => UntrackedUsuario(u)).ToArray();
+                ViewBag.Vendedores = entity.Usuario.Where(u => u.idRol == 2 || u.idRol == 7 && u.activo == true).AsEnumerable().Select(u => UntrackedUsuario(u)).ToArray();
+                ViewBag.Usuarios = entity.Usuario.Where(x => x.activo == true).AsEnumerable().Select(u => UntrackedUsuario(u)).ToArray();
                 ViewBag.GastosTotal = JsonConvert.SerializeObject(entity.Gastos.Where(g => g.idCuadre == cuadreActual).Sum(g => g.cantidad));
-                ViewBag.Efectivo = entity.Factura.Include("venta").Where(x => x.numPago == 1 && x.Venta.idCuadre == cuadreActual && x.TieneCedito==false).DefaultIfEmpty(null).Sum(x => (float?)x.total??0f);
+                ViewBag.Efectivo = entity.Factura.Include("venta").Where(x => x.numPago == 1 && x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
                 ViewBag.Depositos = entity.Factura.Include("venta").Where(x => x.numPago == 3 && x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
                 ViewBag.TarjetaCredito = entity.Factura.Include("venta").Where(x => x.numPago == 2 && x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
-                ViewBag.Credito = entity.Factura.Include("venta").Where(x=> x.Venta.idCuadre == cuadreActual && x.TieneCedito == true).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
+                ViewBag.Credito = entity.Factura.Include("venta").Where(x => x.Venta.idCuadre == cuadreActual && x.TieneCedito == true).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
                 ViewBag.PagosCredito = entity.Pagos.Where(x => x.idCuadre == cuadreActual).DefaultIfEmpty(null).Sum(x => (float?)x.Monto ?? 0f);
-                ViewBag.Cortesia = entity.Factura.Include("venta").Include("detalleventa").Where(x => x.numPago == 0 &&  x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.Venta.total ?? 0f);
+                ViewBag.Cortesia = entity.Factura.Include("venta").Include("detalleventa").Where(x => x.numPago == 0 && x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.Venta.total ?? 0f);
 
 
-                IEnumerable<Factura> detalleCortesia = entity.Factura.Where(x => x.numPago == 0 && x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).ToList();              
-                
+                IEnumerable<Factura> detalleCortesia = entity.Factura.Where(x => x.numPago == 0 && x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).ToList();
+
                 var buscarcortesia = entity.DetalleVenta.ToList().Where(x => detalleCortesia.Select(b => b.idVenta).Contains(x.idVenta));
-                
+
                 var buscarcortesiaEspecial = entity.DetallesVentaEspecial.ToList().Where(x => detalleCortesia.Select(b => b.idVenta).Contains(x.idVenta));
-                                
-                decimal total= 0;
-              
+
+                decimal total = 0;
+
                 foreach (var item in buscarcortesia)
                 {
                     total += Convert.ToDecimal(item.cantidad * item.precioEntrada);
@@ -81,7 +82,7 @@ namespace barApp.Controllers
 
                 ViewBag.Descuento = DescuentoV - DescuentoF;
 
-                ViewBag.EnvioCredito = entity.Factura.Include("venta").Where(x=> x.Venta.idCuadre == cuadreActual && x.TieneCedito == true).DefaultIfEmpty(null).Sum(x => (float?)x.total??0f);
+                ViewBag.EnvioCredito = entity.Factura.Include("venta").Where(x => x.Venta.idCuadre == cuadreActual && x.TieneCedito == true).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
                 //var descuento = entity.Factura.Include("venta").Where(x => x.descuento != null && x.Venta.idCuadre == cuadreActual).DefaultIfEmpty(null).Sum(x => (float?)x.total??0f) /100;
                 //ViewBag.Descuento = descuento.ToString();
 
@@ -145,7 +146,7 @@ namespace barApp.Controllers
         #region Home
 
 
-       
+
         //cuadrar
         [HttpPost]
         public ActionResult Cuadrar(string Eectivo, string Deposito, string Tarjeta, string Nota, string VentasCuadre, string cortesiaReal, string PagosCredito)
@@ -172,12 +173,12 @@ namespace barApp.Controllers
 
 
                     IDictionary<string, string> CuadreGenerar = new Dictionary<string, string>();
-                    CuadreGenerar.Add("Venta General: ",VentasCuadre);    
+                    CuadreGenerar.Add("Venta General: ", VentasCuadre);
 
 
                     List<arqueo> ListaArqueo = new List<arqueo>();
 
-                    ListaArqueo.Add(new arqueo { Descripcion = "Eectivo", Valor = string.IsNullOrEmpty(Eectivo)?0:Convert.ToDecimal(Eectivo) });
+                    ListaArqueo.Add(new arqueo { Descripcion = "Eectivo", Valor = string.IsNullOrEmpty(Eectivo) ? 0 : Convert.ToDecimal(Eectivo) });
                     ListaArqueo.Add(new arqueo { Descripcion = "Tarjeta", Valor = string.IsNullOrEmpty(Tarjeta) ? 0 : Convert.ToDecimal(Tarjeta) });
                     ListaArqueo.Add(new arqueo { Descripcion = "Deposito", Valor = string.IsNullOrEmpty(Deposito) ? 0 : Convert.ToDecimal(Deposito) });
                     ListaArqueo.Add(new arqueo { Descripcion = "Creditos Pagos", Valor = string.IsNullOrEmpty(PagosCredito) ? 0 : Convert.ToDecimal(PagosCredito) });
@@ -210,12 +211,12 @@ namespace barApp.Controllers
                     int? idCuadre = context.Cuadre.AsEnumerable().SingleOrDefault(c => c.cerrado.GetValueOrDefault(false) == false).idCuadre;
                     Gastos[] gastos = context.Gastos.Where(g => g.idCuadre == idCuadre).ToArray();
                     Dictionary<string, string> gastosResumen = new Dictionary<string, string>();
-                    gastosResumen.Add("Total de gastos"+ gastos.Sum(g => g.cantidad).GetValueOrDefault(0).ToString("$#,0.00"),"");
+                    gastosResumen.Add("Total de gastos" + gastos.Sum(g => g.cantidad).GetValueOrDefault(0).ToString("$#,0.00"), "");
 
                     IEnumerable<CuadreTable> cuadreBar = context.Database.SqlQuery<CuadreTable>("exec sp_cuadre_bar");
                     Dictionary<string, string> barResumen = new Dictionary<string, string>();
                     //barResumen.Add("Productos vendidos", cuadreBar.Sum(g => g.Cantidad).ToString());
-                    barResumen.Add("Total:"+ cuadreBar.Sum(g => g.Total).ToString("$#,0.00")+ "Beneficios:" + cuadreBar.Sum(g => g.Beneficio).ToString("$#,0.00"), "");
+                    barResumen.Add("Total:" + cuadreBar.Sum(g => g.Total).ToString("$#,0.00") + "Beneficios:" + cuadreBar.Sum(g => g.Beneficio).ToString("$#,0.00"), "");
                     //barResumen.Add("Total costos", cuadreBar.Sum(g => g.Costo).ToString("$#,0.00"));
                     //barResumen.Add("Total beneficios", cuadreBar.Sum(g => g.Beneficio).ToString("$#,0.00"));
 
@@ -232,7 +233,7 @@ namespace barApp.Controllers
                     IEnumerable<CuadreTable> cuadreRest = context.Database.SqlQuery<CuadreTable>("exec sp_cuadre_restaurante");
                     Dictionary<string, string> restResumen = new Dictionary<string, string>();
                     //restResumen.Add("Productos vendidos", cuadreRest.Sum(g => g.Cantidad).ToString());
-                    restResumen.Add("Total:"+ cuadreRest.Sum(g => g.Total).ToString("$#,0.00")+ "Beneficios:" + cuadreRest.Sum(g => g.Beneficio).ToString("$#,0.00"), "");
+                    restResumen.Add("Total:" + cuadreRest.Sum(g => g.Total).ToString("$#,0.00") + "Beneficios:" + cuadreRest.Sum(g => g.Beneficio).ToString("$#,0.00"), "");
                     //restResumen.Add("Total costos", cuadreRest.Sum(g => g.Costo).ToString("$#,0.00"));
                     //restResumen.Add("Total beneficios", cuadreRest.Sum(g => g.Beneficio).ToString("$#,0.00"));
 
@@ -241,7 +242,7 @@ namespace barApp.Controllers
                     IEnumerable<CuadreTable> cuadreEspecial = context.Database.SqlQuery<CuadreTable>("exec sp_cuadre_Especial");
                     Dictionary<string, string> EspecialResumenEspecial = new Dictionary<string, string>();
                     //EspecialResumenEspecial.Add("Productos vendidos", cuadreEspecial.Sum(g => g.Cantidad).ToString());
-                  //  EspecialResumenEspecial.Add("Total+"+ cuadreEspecial.Sum(g => g.Total).ToString("$#,0.00"),"");
+                    //  EspecialResumenEspecial.Add("Total+"+ cuadreEspecial.Sum(g => g.Total).ToString("$#,0.00"),"");
                     //EspecialResumenEspecial.Add("Total costos", cuadreEspecial.Sum(g => g.Costo).ToString("$#,0.00"));
                     //EspecialResumenEspecial.Add("Total beneficios", cuadreEspecial.Sum(g => g.Beneficio).ToString("$#,0.00"));
 
@@ -250,12 +251,12 @@ namespace barApp.Controllers
                     IEnumerable<CuadreTable> cuadreEspecial1 = context.Database.SqlQuery<CuadreTable>("exec sp_cuadre_Especial1");
                     Dictionary<string, string> EspecialResumenEspecial1 = new Dictionary<string, string>();
                     //EspecialResumenEspecial.Add("Productos vendidos", cuadreEspecial.Sum(g => g.Cantidad).ToString());
-                    EspecialResumenEspecial1.Add("Total"+ cuadreEspecial1.Sum(g => g.Total).ToString("$#,0.00"),"");
+                    EspecialResumenEspecial1.Add("Total" + cuadreEspecial1.Sum(g => g.Total).ToString("$#,0.00"), "");
                     //EspecialResumenEspecial.Add("Total costos", cuadreEspecial.Sum(g => g.Costo).ToString("$#,0.00"));
                     //EspecialResumenEspecial.Add("Total beneficios", cuadreEspecial.Sum(g => g.Beneficio).ToString("$#,0.00"));
 
 
-                   // var queryInventario = context.Database.SqlQuery<Models.Inventario>("exec sp_inventarioDisponibleInventario");
+                    // var queryInventario = context.Database.SqlQuery<Models.Inventario>("exec sp_inventarioDisponibleInventario");
 
 
                     string[][] queryInventario =
@@ -282,7 +283,7 @@ namespace barApp.Controllers
                                 r.Total.ToString("$#,0.00"),
                                 r.Costo.ToString("$#,0.00")
 
-                                
+
                          }
                      ).ToArray();
 
@@ -291,7 +292,7 @@ namespace barApp.Controllers
 
                     string[][] ventaCosto = context.Database.SqlQuery<CuadreTable>("exec sp_VentaPrecioCosto").Select(r =>
                           new string[1]
-                          {                             
+                          {
                                 r.Total.ToString()
                           }
                        ).ToArray();
@@ -323,7 +324,7 @@ namespace barApp.Controllers
 
                     var Empresa = context.Configuraciones.Where(x => x.Key == "Empresa").First();
 
-                    printer.AddTitle("Cuadre >>>"+Empresa.Value+"<<<");
+                    printer.AddTitle("Cuadre >>>" + Empresa.Value + "<<<");
                     correo.AddTitle("Cuadre >>>" + Empresa.Value + "<<<");
                     printer.AddSpace(2);
                     correo.AddSpace(1);
@@ -366,11 +367,11 @@ namespace barApp.Controllers
                     printer.AddSpace(2);
                     correo.AddSpace(3);
                     printer.AddTable(
-                        new string[4] { "Producto", "Cant.", "P/UND", "Subtotal"},
-                        cuadreBar.Select(b => new string[5] { b.Nombre.ToUpper(),".", b.Cantidad.ToString(), b.PrecioVenta.ToString("$#,0.00"), b.Total.ToString("$#,0.00")}).ToArray(),
+                        new string[4] { "Producto", "Cant.", "P/UND", "Subtotal" },
+                        cuadreBar.Select(b => new string[5] { b.Nombre.ToUpper(), ".", b.Cantidad.ToString(), b.PrecioVenta.ToString("$#,0.00"), b.Total.ToString("$#,0.00") }).ToArray(),
                         true);
                     correo.AddTable(
-                      new string[6] { "Producto", "Cant.", "P/UND", "Subtotal","Costo","Beneficios"},
+                      new string[6] { "Producto", "Cant.", "P/UND", "Subtotal", "Costo", "Beneficios" },
                       cuadreBar.Select(b => new string[6] { b.Nombre.ToUpper(), b.Cantidad.ToString(), b.PrecioVenta.ToString("$#,0.00"), b.Total.ToString("$#,0.00"), b.Costo.ToString("$#,0.00"), b.Beneficio.ToString("$#,0.00") }).ToArray(),
                       true);
                     printer.AddSpace();
@@ -406,7 +407,7 @@ namespace barApp.Controllers
                     correo.AddSpace(1);
                     printer.AddTable(
                         new string[4] { "Producto", "Cant.", "P/UND", "Subtotal" },
-                        cuadreRest.Select(r => new string[5] { r.Nombre.ToUpper(), ".", r.Cantidad.ToString(), r.PrecioVenta.ToString("$#,0.00"), r.Total.ToString("$#,0.00")}).ToArray(),
+                        cuadreRest.Select(r => new string[5] { r.Nombre.ToUpper(), ".", r.Cantidad.ToString(), r.PrecioVenta.ToString("$#,0.00"), r.Total.ToString("$#,0.00") }).ToArray(),
                         true);
                     correo.AddTable(
                     new string[6] { "Producto", "Cant.", "P/UND", "Subtotal", "Costo", "Beneficio" },
@@ -423,7 +424,7 @@ namespace barApp.Controllers
                     correo.AddSpace(1);
                     printer.AddTable(
                         new string[4] { "Especial", "Cant.", "P/UND", "Subtotal" },
-                        cuadreEspecial1.Select(b => new string[5] { b.Nombre.ToUpper(),".", b.Cantidad.ToString(), b.PrecioVenta.ToString("$#,0.00"), b.Total.ToString("$#,0.00")}).ToArray(),
+                        cuadreEspecial1.Select(b => new string[5] { b.Nombre.ToUpper(), ".", b.Cantidad.ToString(), b.PrecioVenta.ToString("$#,0.00"), b.Total.ToString("$#,0.00") }).ToArray(),
                         true);
                     correo.AddTable(
                      new string[4] { "Especial", "Cant.", "P/UND", "Subtotal" },
@@ -441,7 +442,7 @@ namespace barApp.Controllers
                     correo.AddSpace(1);
                     printer.AddTable(
                         new string[2] { "Especial", "Cant." },
-                        cuadreEspecial.Select(b => new string[3] { b.Nombre.ToUpper(),".", b.Cantidad.ToString() }).ToArray(),
+                        cuadreEspecial.Select(b => new string[3] { b.Nombre.ToUpper(), ".", b.Cantidad.ToString() }).ToArray(),
                         true);
                     correo.AddTable(
                    new string[2] { "Especial", "Cant." },
@@ -471,13 +472,13 @@ namespace barApp.Controllers
 
                     printer.AddSubtitle("Nota: " + Nota);
                     correo.AddSubtitle("Nota: " + Nota);
-             
+
                     printer.AddSpace(5);
 
 
                     //string dd = printer.ToString();
 
-                   // printer.AddSubtitle("Nota: " + Nota);
+                    // printer.AddSubtitle("Nota: " + Nota);
 
                     printer.Print("Cuadre", correo.html());
 
@@ -556,202 +557,442 @@ namespace barApp.Controllers
         //facturar cuentas
         [HttpPost]
         public ActionResult FacturarReady(RequestVenta venta)
-            {
+        {
             try
             {
-                string empresa;
-                string rnc;
-                string telefono;
-                string saludo;
-                string cliente;
-                string vendedor;
-                decimal subtotal;
-                decimal descuentos;
-                decimal itbis;
-                decimal propina;
-                string[][] data;
-                decimal Dollar;
-                decimal Euro;
 
-                using (barbdEntities context = new barbdEntities())
+                if (propina_.ToUpper() == "NO")
                 {
-                    empresa = context.Configuraciones.Find("Empresa").Value;
-                    rnc = String.IsNullOrEmpty(venta.Factura[0].rnc)?"": venta.Factura[0].rnc.ToString(); //context.Configuraciones.Find("RNC").Value;
-                    telefono = context.Configuraciones.Find("Telefono").Value;
-                    saludo = context.Configuraciones.Find("Saludo").Value;
-                    var d = context.Configuraciones.Find("Dollar").Value;
-                    Dollar = Convert.ToDecimal(d);
-                    var e = context.Configuraciones.Find("Euro").Value;
-                    Euro = Convert.ToDecimal(e);
-                   
-                    Venta _venta = context.Venta.Find(venta.idVenta);
-                    _venta.ordenFacturada = true;
 
-                   
+                    string empresa;
+                    string rnc;
+                    string telefono;
+                    string saludo;
+                    string cliente;
+                    string vendedor;
+                    decimal subtotal;
+                    decimal descuentos;
+                    decimal itbis;
+                    decimal propina;
+                    string[][] data;
+                    decimal Dollar;
+                    decimal Euro;
 
-                    for (int index = 0; index < venta.Factura.Length; index++)
+                    using (barbdEntities context = new barbdEntities())
                     {
-                        Factura factura = new Factura()
-                        {
-                            descuento = venta.Factura[index].descuento,
-                            fecha = DateTime.Now,
-                            IVA = 18,
-                            idVenta = venta.Factura[index].idVenta,
-                            numFactura = venta.Factura[index].numFactura,
-                            numPago = venta.Factura[index].numPago,
-                            TieneCedito = false,
-                            total = venta.Factura[index].total
-                        };
+                        empresa = context.Configuraciones.Find("Empresa").Value;
+                        rnc = String.IsNullOrEmpty(venta.Factura[0].rnc) ? "" : venta.Factura[0].rnc.ToString(); //context.Configuraciones.Find("RNC").Value;
+                        telefono = context.Configuraciones.Find("Telefono").Value;
+                        saludo = context.Configuraciones.Find("Saludo").Value;
+                        var d = context.Configuraciones.Find("Dollar").Value;
+                        Dollar = Convert.ToDecimal(d);
+                        var e = context.Configuraciones.Find("Euro").Value;
+                        Euro = Convert.ToDecimal(e);
 
-                        if (venta.Factura[index].idUsuario != 0)
-                        {
-                            factura.TieneCedito = true;
+                        Venta _venta = context.Venta.Find(venta.idVenta);
+                        _venta.ordenFacturada = true;
 
-                            Creditos credito = new Creditos()
+
+
+                        for (int index = 0; index < venta.Factura.Length; index++)
+                        {
+                            Factura factura = new Factura()
                             {
-                                idUsuario = venta.Factura[index].idUsuario,
-                                MontoRestante = (decimal)factura.total,
-                                numFactura = factura.numFactura
+                                descuento = venta.Factura[index].descuento,
+                                fecha = DateTime.Now,
+                                IVA = 18,
+                                idVenta = venta.Factura[index].idVenta,
+                                numFactura = venta.Factura[index].numFactura,
+                                numPago = venta.Factura[index].numPago,
+                                TieneCedito = false,
+                                total = venta.Factura[index].total
                             };
 
-                            context.Creditos.Add(credito);
+                            if (venta.Factura[index].idUsuario != 0)
+                            {
+                                factura.TieneCedito = true;
+
+                                Creditos credito = new Creditos()
+                                {
+                                    idUsuario = venta.Factura[index].idUsuario,
+                                    MontoRestante = (decimal)factura.total,
+                                    numFactura = factura.numFactura
+                                };
+
+                                context.Creditos.Add(credito);
+                            }
+
+                            context.Factura.Add(factura);
                         }
 
-                        context.Factura.Add(factura);
-                    }
+                        context.SaveChanges();
 
-                    context.SaveChanges();
-
-                    cliente =  string.IsNullOrEmpty(context.Cliente.Find(_venta.idCliente).nMesa)?"0": context.Cliente.Find(_venta.idCliente).nMesa;
-                    vendedor = context.Usuario.Find(_venta.idUsuario).nombre;
-                    subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == venta.idVenta).Sum(vd => vd.subTotal);
-                    descuentos = subtotal - (decimal)venta.Factura.Sum(f => f.total);
-                    itbis = context.DetalleVenta.Where(vd => vd.idVenta == venta.idVenta).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.18m;
-                    propina = context.DetalleVenta.Where(vd => vd.idVenta == venta.idVenta).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.10m;
-                    data =
-                        context.DetalleVenta
-                        .Where(vd => vd.idVenta == venta.idVenta)
-                        .AsEnumerable()
-                       .Select(vd => new string[5] {
+                        cliente = string.IsNullOrEmpty(context.Cliente.Find(_venta.idCliente).nMesa) ? "0" : context.Cliente.Find(_venta.idCliente).nMesa;
+                        vendedor = context.Usuario.Find(_venta.idUsuario).nombre;
+                        subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == venta.idVenta).Sum(vd => vd.subTotal);
+                        descuentos = subtotal - (decimal)venta.Factura.Sum(f => f.total);
+                        itbis = subtotal * 0.18m;
+                        //propina = subtotal * 0.10m;
+                        data =
+                            context.DetalleVenta
+                            .Where(vd => vd.idVenta == venta.idVenta)
+                            .AsEnumerable()
+                           .Select(vd => new string[5] {
                         "",
                         vd.Producto.nombre.ToUpper(),
                         Math.Round((decimal)vd.cantidad, 2).ToString("#,0"),
                         Math.Round((decimal)vd.precioVenta, 2).ToString("$#,0.00"),
                         Math.Round((decimal)vd.subTotal, 2).ToString("$#,0.00")
-                    })
-                    .ToArray();
+                        })
+                        .ToArray();
 
-                    Printer printer = new Printer();
+                        Printer printer = new Printer();
 
-                    IDictionary<string, string> list1 = new Dictionary<string, string>();
-                    list1.Add("Cliente", cliente.ToUpper());
-                    list1.Add("Orden", venta.idVenta.ToString());
-                    list1.Add("Vendedor/a", vendedor.ToUpper());
-                    list1.Add("RNC", rnc);
-                    if (string.IsNullOrEmpty(rnc))
-                    {
-                        list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
-                        list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
+                        IDictionary<string, string> list1 = new Dictionary<string, string>();
+                        list1.Add("Cliente", cliente.ToUpper());
+                        list1.Add("Orden", venta.idVenta.ToString());
+                        list1.Add("Vendedor/a", vendedor.ToUpper());
+                        list1.Add("RNC", rnc);
+                        if (string.IsNullOrEmpty(rnc))
+                        {
+                            list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy hh:mm:ss tt"));
+                            var NCF_ = context.ComprobanteFiscal.Where(x => x.Utilizado == false).Count() > 0 ? context.ComprobanteFiscal.Where(x => x.Utilizado == false).First().NCF : "";
+                            list1.Add("NCF", NCF_);
+
+                            var c = context.Cliente.Find(_venta.idCliente);
+                            c.ncf = NCF_;
+                            c.rnc = rnc;
+                            context.SaveChanges();
+
+                            if (!String.IsNullOrEmpty(NCF_))
+                            {
+                                var ACTRNC = context.ComprobanteFiscal.Where(X => X.NCF == NCF_).First();
+                                ACTRNC.Utilizado = true;
+                                context.SaveChanges();
+                            }
+                        }
+                        else
+                        {
+                            list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy hh:mm:ss tt"));
+                            var NCF_ = context.ComprobanteFiscal.Where(x => x.Utilizado == false).Count() > 0 ? context.ComprobanteFiscal.Where(x => x.Utilizado == false).First().NCF : "";
+                            list1.Add("NCF", NCF_);
+
+                            var c = context.Cliente.Find(_venta.idCliente);
+                            c.ncf = NCF_;
+                            c.rnc = rnc;
+                            context.SaveChanges();
+
+                            if (!String.IsNullOrEmpty(NCF_))
+                            {
+                                var ACTRNC = context.ComprobanteFiscal.Where(X => X.NCF == NCF_).First();
+                                ACTRNC.Utilizado = true;
+                                context.SaveChanges();
+                            }
+
+
+                        }
+
+
+                        Dictionary<string, string> tableDetails = new Dictionary<string, string>();
+                        Dictionary<string, string> tableTotal = new Dictionary<string, string>();
+
+                        if (itbis_.ToUpper() == "SI")
+                        {
+
+                            tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
+                            //tableDetails.Add("Subtotal", (subtotal - itbis-propina).ToString("$#,0.00"));
+                            tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
+                            //tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
+                            tableDetails.Add("Descuento", descuentos.ToString("$#,0.00") + " (" + venta.Factura[0].descuento.GetValueOrDefault(0).ToString() + "%)");
+                         
+                            tableTotal.Add("TOTAL", (subtotal - descuentos).ToString("$#,0.00"));
+
+                        }
+                        else
+                        {
+                            tableDetails.Add("Descuento", descuentos.ToString("$#,0.00") + " (" + venta.Factura[0].descuento.GetValueOrDefault(0).ToString() + "%)");
+                            tableTotal.Add("TOTAL", (subtotal - descuentos).ToString("$#,0.00"));
+
+                        }
+
+                        printer.AddTitle("Factura");
+                        printer.AddSpace(2);
+                        printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
+                        printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
+                        printer.AddSpace(2);
+                        printer.AddSubtitle("Información general");
+                        printer.AddSpace();
+                        printer.AddDescriptionList(list1, 2);
+                        printer.AddSpace(2);
+                        printer.AddSubtitle("Productos");
+                        printer.AddSpace();
+                        printer.AddTable(new string[4] { "Código", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
+                        printer.AddSpace();
+                        printer.AddTableDetails(tableDetails, 4);
+                        printer.AddSpace();
+                        printer.AddTableDetails(tableTotal, 4);
+                        printer.AddSpace(2);
+                        printer.AddBarCode(venta.idVenta.ToString());
+                        printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
+                        printer.AddSpace(2);
+                        decimal DollarInfo = subtotal / Dollar;
+                        printer.AddString("Dollar $ " + DollarInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
+                        decimal EuroInfo = subtotal / Euro;
+                        printer.AddString("Euro $ " + EuroInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
+
+
+                        if (venta.Factura[0].numPago == -1)
+                        {
+                            printer.AddString("Pago Combinado");
+
+                        }
+                        else if (!string.IsNullOrEmpty(venta.Factura[0].idUsuario.ToString()))
+                        {
+                            printer.AddString("Credito");
+                        }
+                        else if (venta.Factura[0].numPago == 0)
+                        {
+                            printer.AddString("Cortesia");
+                        }
+                        else if (venta.Factura[0].numPago == 1)
+                        {
+                            printer.AddString("Pago Efectivo");
+                        }
+
+                        else if (venta.Factura[0].numPago == 2)
+                        {
+                            printer.AddString("Pago Tarjeta");
+                        }
+
+                        else if (venta.Factura[0].numPago == 3)
+                        {
+                            printer.AddString("Pago Deposito");
+                        }
+
+
+
+                        printer.Print(venta.Factura[0].numPago.ToString());
+
+                        InfoMensaje Info = new InfoMensaje
+                        {
+                            Tipo = "Ready",
+                            Mensaje = "Facturación realizada con exito"
+                        };
+
+                        return Json(Info, JsonRequestBehavior.AllowGet);
+
                     }
-                    else
-                    {
-                        list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy hh:mm:ss tt"));
-                        var NCF_ = context.ComprobanteFiscal.Where(x => x.Utilizado == false).Count() > 0 ? context.ComprobanteFiscal.Where(x => x.Utilizado == false).First().NCF : "";
-                        list1.Add("NCF", NCF_);
+                }
+                else
+                {
+                    string empresa;
+                    string rnc;
+                    string telefono;
+                    string saludo;
+                    string cliente;
+                    string vendedor;
+                    decimal subtotal;
+                    decimal descuentos;
+                    decimal itbis;
+                    decimal propina;
+                    string[][] data;
+                    decimal Dollar;
+                    decimal Euro;
 
-                        var c = context.Cliente.Find(_venta.idCliente);
-                        c.ncf = NCF_;
-                        c.rnc = rnc;
+                    using (barbdEntities context = new barbdEntities())
+                    {
+                        empresa = context.Configuraciones.Find("Empresa").Value;
+                        rnc = String.IsNullOrEmpty(venta.Factura[0].rnc) ? "" : venta.Factura[0].rnc.ToString(); //context.Configuraciones.Find("RNC").Value;
+                        telefono = context.Configuraciones.Find("Telefono").Value;
+                        saludo = context.Configuraciones.Find("Saludo").Value;
+                        var d = context.Configuraciones.Find("Dollar").Value;
+                        Dollar = Convert.ToDecimal(d);
+                        var e = context.Configuraciones.Find("Euro").Value;
+                        Euro = Convert.ToDecimal(e);
+
+                        Venta _venta = context.Venta.Find(venta.idVenta);
+                        _venta.ordenFacturada = true;
+
+
+
+                        for (int index = 0; index < venta.Factura.Length; index++)
+                        {
+                            Factura factura = new Factura()
+                            {
+                                descuento = venta.Factura[index].descuento,
+                                fecha = DateTime.Now,
+                                IVA = 18,
+                                idVenta = venta.Factura[index].idVenta,
+                                numFactura = venta.Factura[index].numFactura,
+                                numPago = venta.Factura[index].numPago,
+                                TieneCedito = false,
+                                total = venta.Factura[index].total
+                            };
+
+                            if (venta.Factura[index].idUsuario != 0)
+                            {
+                                factura.TieneCedito = true;
+
+                                Creditos credito = new Creditos()
+                                {
+                                    idUsuario = venta.Factura[index].idUsuario,
+                                    MontoRestante = (decimal)factura.total,
+                                    numFactura = factura.numFactura
+                                };
+
+                                context.Creditos.Add(credito);
+                            }
+
+                            context.Factura.Add(factura);
+                        }
+
                         context.SaveChanges();
 
-                        if (!String.IsNullOrEmpty(NCF_))
+                        cliente = string.IsNullOrEmpty(context.Cliente.Find(_venta.idCliente).nMesa) ? "0" : context.Cliente.Find(_venta.idCliente).nMesa;
+                        vendedor = context.Usuario.Find(_venta.idUsuario).nombre;
+                        subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == venta.idVenta).Sum(vd => vd.subTotal);
+                        descuentos = subtotal - (decimal)venta.Factura.Sum(f => f.total);
+                        itbis = subtotal * 0.18m;
+                        propina = subtotal * 0.10m;
+                        data =
+                            context.DetalleVenta
+                            .Where(vd => vd.idVenta == venta.idVenta)
+                            .AsEnumerable()
+                           .Select(vd => new string[5] {
+                        "",
+                        vd.Producto.nombre.ToUpper(),
+                        Math.Round((decimal)vd.cantidad, 2).ToString("#,0"),
+                        Math.Round((decimal)vd.precioVenta, 2).ToString("$#,0.00"),
+                        Math.Round((decimal)vd.subTotal, 2).ToString("$#,0.00")
+                        })
+                        .ToArray();
+
+                        Printer printer = new Printer();
+
+                        IDictionary<string, string> list1 = new Dictionary<string, string>();
+                        list1.Add("Cliente", cliente.ToUpper());
+                        list1.Add("Orden", venta.idVenta.ToString());
+                        list1.Add("Vendedor/a", vendedor.ToUpper());
+                        list1.Add("RNC", rnc);
+                        if (string.IsNullOrEmpty(rnc))
                         {
-                            var ACTRNC = context.ComprobanteFiscal.Where(X => X.NCF == NCF_).First();
-                            ACTRNC.Utilizado = true;
+                            list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy hh:mm:ss tt"));
+                            var NCF_ = context.ComprobanteFiscal.Where(x => x.Utilizado == false).Count() > 0 ? context.ComprobanteFiscal.Where(x => x.Utilizado == false).First().NCF : "";
+                            list1.Add("NCF", NCF_);
+
+                            var c = context.Cliente.Find(_venta.idCliente);
+                            c.ncf = NCF_;
+                            c.rnc = rnc;
                             context.SaveChanges();
+
+                            if (!String.IsNullOrEmpty(NCF_))
+                            {
+                                var ACTRNC = context.ComprobanteFiscal.Where(X => X.NCF == NCF_).First();
+                                ACTRNC.Utilizado = true;
+                                context.SaveChanges();
+                            }
                         }
-                     
+                        else
+                        {
+                            list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy hh:mm:ss tt"));
+                            var NCF_ = context.ComprobanteFiscal.Where(x => x.Utilizado == false).Count() > 0 ? context.ComprobanteFiscal.Where(x => x.Utilizado == false).First().NCF : "";
+                            list1.Add("NCF", NCF_);
+
+                            var c = context.Cliente.Find(_venta.idCliente);
+                            c.ncf = NCF_;
+                            c.rnc = rnc;
+                            context.SaveChanges();
+
+                            if (!String.IsNullOrEmpty(NCF_))
+                            {
+                                var ACTRNC = context.ComprobanteFiscal.Where(X => X.NCF == NCF_).First();
+                                ACTRNC.Utilizado = true;
+                                context.SaveChanges();
+                            }
+
+
+                        }
+
+
+
+
+
+                        Dictionary<string, string> tableDetails = new Dictionary<string, string>();
+                        tableDetails.Add("Subtotal", (subtotal - itbis - propina).ToString("$#,0.00"));
+                        //tableDetails.Add("Subtotal", (subtotal - itbis-propina).ToString("$#,0.00"));
+                        tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
+                        tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
+                        tableDetails.Add("Descuento", descuentos.ToString("$#,0.00") + " (" + venta.Factura[0].descuento.GetValueOrDefault(0).ToString() + "%)");
+                        Dictionary<string, string> tableTotal = new Dictionary<string, string>();
+                        tableTotal.Add("TOTAL", (subtotal - descuentos).ToString("$#,0.00"));
+
+                        printer.AddTitle("Factura");
+                        printer.AddSpace(2);
+                        printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
+                        printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
+                        printer.AddSpace(2);
+                        printer.AddSubtitle("Información general");
+                        printer.AddSpace();
+                        printer.AddDescriptionList(list1, 2);
+                        printer.AddSpace(2);
+                        printer.AddSubtitle("Productos");
+                        printer.AddSpace();
+                        printer.AddTable(new string[4] { "Código", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
+                        printer.AddSpace();
+                        printer.AddTableDetails(tableDetails, 4);
+                        printer.AddSpace();
+                        printer.AddTableDetails(tableTotal, 4);
+                        printer.AddSpace(2);
+                        printer.AddBarCode(venta.idVenta.ToString());
+                        printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
+                        printer.AddSpace(2);
+                        decimal DollarInfo = subtotal / Dollar;
+                        printer.AddString("Dollar $ " + DollarInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
+                        decimal EuroInfo = subtotal / Euro;
+                        printer.AddString("Euro $ " + EuroInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
+
+
+                        if (venta.Factura[0].numPago == -1)
+                        {
+                            printer.AddString("Pago Combinado");
+
+                        }
+                        else if (!string.IsNullOrEmpty(venta.Factura[0].idUsuario.ToString()))
+                        {
+                            printer.AddString("Credito");
+                        }
+                        else if (venta.Factura[0].numPago == 0)
+                        {
+                            printer.AddString("Cortesia");
+                        }
+                        else if (venta.Factura[0].numPago == 1)
+                        {
+                            printer.AddString("Pago Efectivo");
+                        }
+
+                        else if (venta.Factura[0].numPago == 2)
+                        {
+                            printer.AddString("Pago Tarjeta");
+                        }
+
+                        else if (venta.Factura[0].numPago == 3)
+                        {
+                            printer.AddString("Pago Deposito");
+                        }
+
+
+
+                        printer.Print(venta.Factura[0].numPago.ToString());
+
+                        InfoMensaje Info = new InfoMensaje
+                        {
+                            Tipo = "Ready",
+                            Mensaje = "Facturación realizada con exito"
+                        };
+
+                        return Json(Info, JsonRequestBehavior.AllowGet);
 
                     }
-                    
-
-
-
-
-                    Dictionary<string, string> tableDetails = new Dictionary<string, string>();
-                    tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
-                    //tableDetails.Add("Subtotal", (subtotal - itbis-propina).ToString("$#,0.00"));
-                    tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
-                    //tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
-                    tableDetails.Add("Descuento", descuentos.ToString("$#,0.00") + " (" + venta.Factura[0].descuento.GetValueOrDefault(0).ToString() + "%)");
-                    Dictionary<string, string> tableTotal = new Dictionary<string, string>();
-                    tableTotal.Add("TOTAL", (subtotal - descuentos).ToString("$#,0.00"));
-
-                    printer.AddTitle("Factura");
-                    printer.AddSpace(2);
-                    printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
-                    printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
-                    printer.AddSpace(2);
-                    printer.AddSubtitle("Información general");
-                    printer.AddSpace();
-                    printer.AddDescriptionList(list1, 2);
-                    printer.AddSpace(2);
-                    printer.AddSubtitle("Productos");
-                    printer.AddSpace();
-                    printer.AddTable(new string[4] { "Código", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
-                    printer.AddSpace();
-                    printer.AddTableDetails(tableDetails, 4);
-                    printer.AddSpace();
-                    printer.AddTableDetails(tableTotal, 4);
-                    printer.AddSpace(2);
-                    printer.AddBarCode(venta.idVenta.ToString());
-                    printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
-                    printer.AddSpace(2);
-                    decimal DollarInfo = subtotal / Dollar;
-                    printer.AddString("Dollar $ " + DollarInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
-                    decimal EuroInfo = subtotal / Euro;
-                    printer.AddString("Euro $ " + EuroInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
-
-
-                    if (venta.Factura[0].numPago == -1)
-                    {
-                        printer.AddString("Pago Combinado");
-
-                    }
-                    else if (!string.IsNullOrEmpty(venta.Factura[0].idUsuario.ToString()))
-                    {
-                        printer.AddString("Credito");
-                    }
-                    else if (venta.Factura[0].numPago == 0)
-                    {
-                        printer.AddString("Cortesia");
-                    }
-                    else if (venta.Factura[0].numPago == 1)
-                    {
-                        printer.AddString("Pago Efectivo");
-                    }
-
-                    else if (venta.Factura[0].numPago == 2)
-                    {
-                        printer.AddString("Pago Tarjeta");
-                    }
-
-                    else if (venta.Factura[0].numPago == 3)
-                    {
-                        printer.AddString("Pago Deposito");
-                    }
-                                       
-
-
-                    printer.Print(venta.Factura[0].numPago.ToString());
-
-                    InfoMensaje Info = new InfoMensaje
-                    {
-                        Tipo = "Ready",
-                        Mensaje = "Facturación realizada con exito"
-                    };
-
-                    return Json(Info, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex)
@@ -806,116 +1047,10 @@ namespace barApp.Controllers
 
 
             //}
-
-
-            int result = 0;
-            string empresa;
-            string rnc;
-            string telefono;
-            string saludo;
-            string cliente;
-            string vendedor;
-            decimal subtotal;
-            decimal itbis;
-            string[][] data;
-
-            using (barbdEntities context = new barbdEntities())
-            {
-                empresa = context.Configuraciones.Find("Empresa").Value;
-                rnc = context.Configuraciones.Find("RNC").Value;
-                telefono = context.Configuraciones.Find("Telefono").Value;
-                saludo = context.Configuraciones.Find("Saludo").Value;
-
-                Venta venta = context.Venta.Find(id);
-                venta.ordenCerrada = true;
-
-                venta.Cliente.idMesa = null;
-
-                result = context.SaveChanges();
-                cliente = "xxx";//context.Cliente.Find(venta.idCliente).nombre;
-                vendedor = context.Usuario.Find(venta.idUsuario).nombre;
-                subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.subTotal);
-                itbis = context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.18m;
-                data =
-                    context.DetalleVenta
-                    .Where(vd => vd.idVenta == id)
-                    .AsEnumerable()
-                    .Select(vd => new string[5] {
-                        "",
-                        vd.Producto.nombre.ToUpper(),
-                        Math.Round((decimal)vd.cantidad, 2).ToString("#,0"),
-                        Math.Round((decimal)vd.precioVenta, 2).ToString("$#,0.00"),
-                        Math.Round((decimal)vd.subTotal, 2).ToString("$#,0.00")
-                    })
-                    .ToArray();
-            }
-
-            Printer printer = new Printer();
-
-            IDictionary<string, string> list1 = new Dictionary<string, string>();
-            list1.Add("Cliente", cliente.ToUpper());
-            list1.Add("Orden", id.ToString());
-            list1.Add("Vendedor/a", vendedor.ToUpper());
-            list1.Add("RNC", rnc);
-            list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
-            list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
-
-            Dictionary<string, string> tableDetails = new Dictionary<string, string>();
-            tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
-            tableDetails.Add("ITBIS", itbis.ToString("$#,0.00"));
-            Dictionary<string, string> tableTotal = new Dictionary<string, string>();
-            tableTotal.Add("TOTAL", subtotal.ToString("$#,0.00"));
-
-            printer.AddTitle("Prefactura");
-            printer.AddSpace(2);
-            printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
-            printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
-            printer.AddSpace(2);
-            printer.AddSubtitle("Información general");
-            printer.AddSpace();
-            printer.AddDescriptionList(list1, 2);
-            printer.AddSpace(2);
-            printer.AddSubtitle("Productos");
-            printer.AddSpace();
-            printer.AddTable(new string[4] { "Producto", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
-            printer.AddSpace();
-            printer.AddTableDetails(tableDetails, 4);
-            printer.AddSpace();
-            printer.AddTableDetails(tableTotal, 4);
-            printer.AddSpace(2);
-            printer.AddBarCode(id.ToString());
-            printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
-            printer.AddSpace(2);
-
-            printer.Print();
-
-            using (var entity = new barbdEntities())
+            if (propina_.ToUpper() == "NO")
             {
 
-
-                List<Venta> v = new List<Venta>();
-
-                var idcuadre = entity.Cuadre.SingleOrDefault(x => x.cerrado == false);
-
-
-                var ReportesVentas_ = entity.Venta.Include("usuario").Where(x => x.idCuadre == idcuadre.idCuadre && x.ordenFacturada == true).ToList();
-
-                ViewBag.tipopago = entity.ModoPago.ToList();
-                return PartialView(ReportesVentas_);
-
-            }
-        }
-
-
-        [HttpPost]
-        public ActionResult  FacturarReadyR(int Id)
-        {
-
-            List<Factura> FL = new List<Factura>();
-            Factura F = new Factura();
-            
-            try
-            {
+                int result = 0;
                 string empresa;
                 string rnc;
                 string telefono;
@@ -923,154 +1058,561 @@ namespace barApp.Controllers
                 string cliente;
                 string vendedor;
                 decimal subtotal;
-                decimal descuentos;
                 decimal itbis;
                 string[][] data;
 
                 using (barbdEntities context = new barbdEntities())
                 {
-
-                    var total = context.Factura.Where(x => x.idVenta == Id).Select(x => x.total).First();
-                    var numPago = context.Factura.Where(x => x.idVenta == Id).Select(x => x.numPago).First();
-                    var descuento = context.Factura.Where(x => x.idVenta == Id).Select(x => x.descuento).First();
-                    var idUsuario= context.Venta.Where(x => x.idVenta == Id).Select(x => x.idUsuario).First();
-
-
-                    RequestVenta._Factura[] r = new RequestVenta._Factura[]{ new RequestVenta._Factura {total= total, numPago = numPago, descuento= descuento, idUsuario = (int)idUsuario } };
-                                     
-                    var venta = new RequestVenta();
-                    venta.idVenta = Id;
-                    venta.idUsuario = idUsuario;
-                    venta.Factura = r;
-                    
-                
-
-
-                    venta.idUsuario = context.Venta.Where(x => x.idVenta == Id).Select(x => x.idUsuario).First();
-                    venta.idVenta = context.Venta.Where(x => x.idVenta == Id).Select(x => x.idVenta).First();
-
                     empresa = context.Configuraciones.Find("Empresa").Value;
                     rnc = context.Configuraciones.Find("RNC").Value;
                     telefono = context.Configuraciones.Find("Telefono").Value;
                     saludo = context.Configuraciones.Find("Saludo").Value;
 
-                    Venta _venta = context.Venta.Find(venta.idVenta);
-                    _venta.ordenFacturada = true;
+                    Venta venta = context.Venta.Find(id);
+                    venta.ordenCerrada = true;
 
-                    //for (int index = 0; index < venta.Factura.Length; index++)
-                    //{
-                    //    Factura factura = new Factura()
-                    //    {
-                    //        descuento = venta.Factura[index].descuento,
-                    //        fecha = DateTime.Now,
-                    //        IVA = 18,
-                    //        idVenta = venta.Factura[index].idVenta,
-                    //        numFactura = venta.Factura[index].numFactura,
-                    //        numPago = venta.Factura[index].numPago,
-                    //        TieneCedito = false,
-                    //        total = venta.Factura[index].total
-                    //    };
+                    venta.Cliente.idMesa = null;
 
-                    //    if (venta.Factura[index].idUsuario != 0)
-                    //    {
-                    //        factura.TieneCedito = true;
-
-                    //        Creditos credito = new Creditos()
-                    //        {
-                    //            idUsuario = venta.Factura[index].idUsuario,
-                    //            MontoRestante = (decimal)factura.total,
-                    //            numFactura = factura.numFactura
-                    //        };
-
-                    //        context.Creditos.Add(credito);
-                    //    }
-
-                    //    context.Factura.Add(factura);
-                    //}
-
-                    //context.SaveChanges();
-
-                    cliente = "xxx";///context.Cliente.Find(_venta.idCliente).nombre;
-                    vendedor = context.Usuario.Find(_venta.idUsuario).nombre;
-                    subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == venta.idVenta).Sum(vd => vd.subTotal);
-                    descuentos = subtotal - (decimal)venta.Factura.Sum(f => f.total);
-                    itbis = context.DetalleVenta.Where(vd => vd.idVenta == venta.idVenta).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.18m;
+                    result = context.SaveChanges();
+                    cliente = "xxx";//context.Cliente.Find(venta.idCliente).nombre;
+                    vendedor = context.Usuario.Find(venta.idUsuario).nombre;
+                    subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.subTotal);
+                    itbis = subtotal * 0.18m;
                     data =
                         context.DetalleVenta
-                        .Where(vd => vd.idVenta == venta.idVenta)
+                        .Where(vd => vd.idVenta == id)
                         .AsEnumerable()
-                       .Select(vd => new string[5] {
+                        .Select(vd => new string[5] {
                         "",
                         vd.Producto.nombre.ToUpper(),
                         Math.Round((decimal)vd.cantidad, 2).ToString("#,0"),
                         Math.Round((decimal)vd.precioVenta, 2).ToString("$#,0.00"),
                         Math.Round((decimal)vd.subTotal, 2).ToString("$#,0.00")
-                    })
-                    .ToArray();
+                        })
+                        .ToArray();
+                }
 
-                    Printer printer = new Printer();
+                Printer printer = new Printer();
 
-                    IDictionary<string, string> list1 = new Dictionary<string, string>();
-                    list1.Add("Cliente", cliente.ToUpper());
-                    list1.Add("Orden", venta.idVenta.ToString());
-                    list1.Add("Vendedor/a", vendedor.ToUpper());
-                    list1.Add("RNC", rnc);
-                    list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
-                    list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
+                IDictionary<string, string> list1 = new Dictionary<string, string>();
+                list1.Add("Cliente", cliente.ToUpper());
+                list1.Add("Orden", id.ToString());
+                list1.Add("Vendedor/a", vendedor.ToUpper());
+                list1.Add("RNC", rnc);
+                list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
+                list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
 
-                    Dictionary<string, string> tableDetails = new Dictionary<string, string>();
+                Dictionary<string, string> tableDetails = new Dictionary<string, string>();
+                Dictionary<string, string> tableTotal = new Dictionary<string, string>();
+
+                if (itbis_.ToUpper() == "SI")
+                {
+
                     tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
                     tableDetails.Add("ITBIS", itbis.ToString("$#,0.00"));
-                    tableDetails.Add("Descuento", descuentos.ToString("$#,0.00") + " (" + venta.Factura[0].descuento.GetValueOrDefault(0).ToString() + "%)");
-                    Dictionary<string, string> tableTotal = new Dictionary<string, string>();
-                    tableTotal.Add("TOTAL", (subtotal - descuentos).ToString("$#,0.00"));
+                    tableTotal.Add("TOTAL", subtotal.ToString("$#,0.00"));
+                }
+                else
+                {
+                    tableTotal.Add("TOTAL", subtotal.ToString("$#,0.00"));
+                }
 
-                    printer.AddTitle("Factura de consumidor final");
-                    printer.AddSpace(2);
-                    printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
-                    printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
-                    printer.AddSpace(2);
-                    printer.AddSubtitle("Información general");
-                    printer.AddSpace();
-                    printer.AddDescriptionList(list1, 2);
-                    printer.AddSpace(2);
-                    printer.AddSubtitle("Productos");
-                    printer.AddSpace();
-                    printer.AddTable(new string[4] { "Código", "Cantidad", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
-                    printer.AddSpace();
-                    printer.AddTableDetails(tableDetails, 4);
-                    printer.AddSpace();
-                    printer.AddTableDetails(tableTotal, 4);
-                    printer.AddSpace(2);
-                    printer.AddBarCode(venta.idVenta.ToString());
-                    printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
-                    printer.AddSpace(2);
+                printer.AddTitle("Prefactura");
+                printer.AddSpace(2);
+                printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
+                printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
+                printer.AddSpace(2);
+                printer.AddSubtitle("Información general");
+                printer.AddSpace();
+                printer.AddDescriptionList(list1, 2);
+                printer.AddSpace(2);
+                printer.AddSubtitle("Productos");
+                printer.AddSpace();
+                printer.AddTable(new string[4] { "Producto", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
+                printer.AddSpace();
+                printer.AddTableDetails(tableDetails, 4);
+                printer.AddSpace();
+                printer.AddTableDetails(tableTotal, 4);
+                printer.AddSpace(2);
+                printer.AddBarCode(id.ToString());
+                printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
+                printer.AddSpace(2);
 
-                    printer.Print();
+                printer.Print();
 
-                    InfoMensaje Info = new InfoMensaje
+                using (var entity = new barbdEntities())
+                {
+
+
+                    List<Venta> v = new List<Venta>();
+
+                    var idcuadre = entity.Cuadre.SingleOrDefault(x => x.cerrado == false);
+
+
+                    var ReportesVentas_ = entity.Venta.Include("usuario").Where(x => x.idCuadre == idcuadre.idCuadre && x.ordenFacturada == true).ToList();
+
+                    ViewBag.tipopago = entity.ModoPago.ToList();
+                    return PartialView(ReportesVentas_);
+
+                }
+
+            }
+            else
+            {
+
+
+                int result = 0;
+                string empresa;
+                string rnc;
+                string telefono;
+                string saludo;
+                string cliente;
+                string vendedor;
+                decimal subtotal;
+                decimal itbis;
+                string[][] data;
+                decimal propina;
+
+                using (barbdEntities context = new barbdEntities())
+                {
+                    empresa = context.Configuraciones.Find("Empresa").Value;
+                    rnc = context.Configuraciones.Find("RNC").Value;
+                    telefono = context.Configuraciones.Find("Telefono").Value;
+                    saludo = context.Configuraciones.Find("Saludo").Value;
+
+                    Venta venta = context.Venta.Find(id);
+                    venta.ordenCerrada = true;
+
+                    venta.Cliente.idMesa = null;
+
+                    result = context.SaveChanges();
+                    cliente = "xxx";//context.Cliente.Find(venta.idCliente).nombre;
+                    vendedor = context.Usuario.Find(venta.idUsuario).nombre;
+                    subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.subTotal);
+                    itbis = subtotal * 0.18m;
+                    propina = subtotal * 0.10m;
+                    data =
+                        context.DetalleVenta
+                        .Where(vd => vd.idVenta == id)
+                        .AsEnumerable()
+                        .Select(vd => new string[5] {
+                        "",
+                        vd.Producto.nombre.ToUpper(),
+                        Math.Round((decimal)vd.cantidad, 2).ToString("#,0"),
+                        Math.Round((decimal)vd.precioVenta, 2).ToString("$#,0.00"),
+                        Math.Round((decimal)vd.subTotal, 2).ToString("$#,0.00")
+                        })
+                        .ToArray();
+                }
+
+                Printer printer = new Printer();
+
+                IDictionary<string, string> list1 = new Dictionary<string, string>();
+                list1.Add("Cliente", cliente.ToUpper());
+                list1.Add("Orden", id.ToString());
+                list1.Add("Vendedor/a", vendedor.ToUpper());
+                list1.Add("RNC", rnc);
+                list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
+                list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
+
+                Dictionary<string, string> tableDetails = new Dictionary<string, string>();
+                tableDetails.Add("Subtotal", (subtotal - itbis - propina).ToString("$#,0.00"));
+                tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
+                tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
+                Dictionary<string, string> tableTotal = new Dictionary<string, string>();
+                tableTotal.Add("TOTAL", subtotal.ToString("$#,0.00"));
+
+                printer.AddTitle("Prefactura");
+                printer.AddSpace(2);
+                printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
+                printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
+                printer.AddSpace(2);
+                printer.AddSubtitle("Información general");
+                printer.AddSpace();
+                printer.AddDescriptionList(list1, 2);
+                printer.AddSpace(2);
+                printer.AddSubtitle("Productos");
+                printer.AddSpace();
+                printer.AddTable(new string[4] { "Producto", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
+                printer.AddSpace();
+                printer.AddTableDetails(tableDetails, 4);
+                printer.AddSpace();
+                printer.AddTableDetails(tableTotal, 4);
+                printer.AddSpace(2);
+                printer.AddBarCode(id.ToString());
+                printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
+                printer.AddSpace(2);
+
+                printer.Print();
+
+                using (var entity = new barbdEntities())
+                {
+
+
+                    List<Venta> v = new List<Venta>();
+
+                    var idcuadre = entity.Cuadre.SingleOrDefault(x => x.cerrado == false);
+
+
+                    var ReportesVentas_ = entity.Venta.Include("usuario").Where(x => x.idCuadre == idcuadre.idCuadre && x.ordenFacturada == true).ToList();
+
+                    ViewBag.tipopago = entity.ModoPago.ToList();
+                    return PartialView(ReportesVentas_);
+
+                }
+
+            }
+        }
+
+
+        [HttpPost]
+        public ActionResult FacturarReadyR(int Id)
+        {
+
+            List<Factura> FL = new List<Factura>();
+            Factura F = new Factura();
+
+            try
+            {
+                if (propina_.ToUpper() == "NO")
+                {
+
+                    string empresa;
+                    string rnc;
+                    string telefono;
+                    string saludo;
+                    string cliente;
+                    string vendedor;
+                    decimal subtotal;
+                    decimal descuentos;
+                    decimal itbis;
+                    string[][] data;
+
+                    using (barbdEntities context = new barbdEntities())
                     {
-                        Tipo = "Ready",
-                        Mensaje = "Facturación realizada con exito"
-                    };
 
-                    using (var entity = new barbdEntities())
-                    {
-
-
-                        List<Venta> v = new List<Venta>();
-
-                        var idcuadre = entity.Cuadre.SingleOrDefault(x => x.cerrado == false);
+                        var total = context.Factura.Where(x => x.idVenta == Id).Select(x => x.total).First();
+                        var numPago = context.Factura.Where(x => x.idVenta == Id).Select(x => x.numPago).First();
+                        var descuento = context.Factura.Where(x => x.idVenta == Id).Select(x => x.descuento).First();
+                        var idUsuario = context.Venta.Where(x => x.idVenta == Id).Select(x => x.idUsuario).First();
 
 
-                        var ReportesVentas_ = entity.Venta.Include("usuario").Where(x => x.idCuadre == idcuadre.idCuadre && x.ordenFacturada == true).ToList();
+                        RequestVenta._Factura[] r = new RequestVenta._Factura[] { new RequestVenta._Factura { total = total, numPago = numPago, descuento = descuento, idUsuario = (int)idUsuario } };
 
-                        ViewBag.tipopago = entity.ModoPago.ToList();
-                        return PartialView(ReportesVentas_);
+                        var venta = new RequestVenta();
+                        venta.idVenta = Id;
+                        venta.idUsuario = idUsuario;
+                        venta.Factura = r;
 
+
+
+
+                        venta.idUsuario = context.Venta.Where(x => x.idVenta == Id).Select(x => x.idUsuario).First();
+                        venta.idVenta = context.Venta.Where(x => x.idVenta == Id).Select(x => x.idVenta).First();
+
+                        empresa = context.Configuraciones.Find("Empresa").Value;
+                        rnc = context.Configuraciones.Find("RNC").Value;
+                        telefono = context.Configuraciones.Find("Telefono").Value;
+                        saludo = context.Configuraciones.Find("Saludo").Value;
+
+                        Venta _venta = context.Venta.Find(venta.idVenta);
+                        _venta.ordenFacturada = true;
+
+                        //for (int index = 0; index < venta.Factura.Length; index++)
+                        //{
+                        //    Factura factura = new Factura()
+                        //    {
+                        //        descuento = venta.Factura[index].descuento,
+                        //        fecha = DateTime.Now,
+                        //        IVA = 18,
+                        //        idVenta = venta.Factura[index].idVenta,
+                        //        numFactura = venta.Factura[index].numFactura,
+                        //        numPago = venta.Factura[index].numPago,
+                        //        TieneCedito = false,
+                        //        total = venta.Factura[index].total
+                        //    };
+
+                        //    if (venta.Factura[index].idUsuario != 0)
+                        //    {
+                        //        factura.TieneCedito = true;
+
+                        //        Creditos credito = new Creditos()
+                        //        {
+                        //            idUsuario = venta.Factura[index].idUsuario,
+                        //            MontoRestante = (decimal)factura.total,
+                        //            numFactura = factura.numFactura
+                        //        };
+
+                        //        context.Creditos.Add(credito);
+                        //    }
+
+                        //    context.Factura.Add(factura);
+                        //}
+
+                        //context.SaveChanges();
+
+                        cliente = "xxx";///context.Cliente.Find(_venta.idCliente).nombre;
+                        vendedor = context.Usuario.Find(_venta.idUsuario).nombre;
+                        subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == venta.idVenta).Sum(vd => vd.subTotal);
+                        descuentos = subtotal - (decimal)venta.Factura.Sum(f => f.total);
+                        itbis = subtotal * 0.18m;
+                        data =
+                            context.DetalleVenta
+                            .Where(vd => vd.idVenta == venta.idVenta)
+                            .AsEnumerable()
+                           .Select(vd => new string[5] {
+                        "",
+                        vd.Producto.nombre.ToUpper(),
+                        Math.Round((decimal)vd.cantidad, 2).ToString("#,0"),
+                        Math.Round((decimal)vd.precioVenta, 2).ToString("$#,0.00"),
+                        Math.Round((decimal)vd.subTotal, 2).ToString("$#,0.00")
+                        })
+                        .ToArray();
+
+                        Printer printer = new Printer();
+
+                        IDictionary<string, string> list1 = new Dictionary<string, string>();
+                        list1.Add("Cliente", cliente.ToUpper());
+                        list1.Add("Orden", venta.idVenta.ToString());
+                        list1.Add("Vendedor/a", vendedor.ToUpper());
+                        list1.Add("RNC", rnc);
+                        list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
+                        list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
+
+                        Dictionary<string, string> tableDetails = new Dictionary<string, string>();
+                        Dictionary<string, string> tableTotal = new Dictionary<string, string>();
+
+                        if (itbis_.ToUpper() == "SI")
+                        {
+
+                           
+                            tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
+                            tableDetails.Add("ITBIS", itbis.ToString("$#,0.00"));
+                            tableDetails.Add("Descuento", descuentos.ToString("$#,0.00") + " (" + venta.Factura[0].descuento.GetValueOrDefault(0).ToString() + "%)");
+                    
+                            tableTotal.Add("TOTAL", (subtotal - descuentos).ToString("$#,0.00"));
+                        }
+                        else
+                        {
+                            tableDetails.Add("Descuento", descuentos.ToString("$#,0.00") + " (" + venta.Factura[0].descuento.GetValueOrDefault(0).ToString() + "%)");
+
+                            tableTotal.Add("TOTAL", (subtotal - descuentos).ToString("$#,0.00"));
+                        }  
+
+
+
+                        printer.AddTitle("Factura de consumidor final");
+                        printer.AddSpace(2);
+                        printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
+                        printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
+                        printer.AddSpace(2);
+                        printer.AddSubtitle("Información general");
+                        printer.AddSpace();
+                        printer.AddDescriptionList(list1, 2);
+                        printer.AddSpace(2);
+                        printer.AddSubtitle("Productos");
+                        printer.AddSpace();
+                        printer.AddTable(new string[4] { "Código", "Cantidad", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
+                        printer.AddSpace();
+                        printer.AddTableDetails(tableDetails, 4);
+                        printer.AddSpace();
+                        printer.AddTableDetails(tableTotal, 4);
+                        printer.AddSpace(2);
+                        printer.AddBarCode(venta.idVenta.ToString());
+                        printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
+                        printer.AddSpace(2);
+
+                        printer.Print();
+
+                        InfoMensaje Info = new InfoMensaje
+                        {
+                            Tipo = "Ready",
+                            Mensaje = "Facturación realizada con exito"
+                        };
+
+                        using (var entity = new barbdEntities())
+                        {
+
+
+                            List<Venta> v = new List<Venta>();
+
+                            var idcuadre = entity.Cuadre.SingleOrDefault(x => x.cerrado == false);
+
+
+                            var ReportesVentas_ = entity.Venta.Include("usuario").Where(x => x.idCuadre == idcuadre.idCuadre && x.ordenFacturada == true).ToList();
+
+                            ViewBag.tipopago = entity.ModoPago.ToList();
+                            return PartialView(ReportesVentas_);
+
+                        }
+
+                        //  return Json(Info, JsonRequestBehavior.AllowGet);
                     }
 
-                    //  return Json(Info, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    string empresa;
+                    string rnc;
+                    string telefono;
+                    string saludo;
+                    string cliente;
+                    string vendedor;
+                    decimal subtotal;
+                    decimal descuentos;
+                    decimal itbis;
+                    string[][] data;
+                    decimal propina;
+
+                    using (barbdEntities context = new barbdEntities())
+                    {
+
+                        var total = context.Factura.Where(x => x.idVenta == Id).Select(x => x.total).First();
+                        var numPago = context.Factura.Where(x => x.idVenta == Id).Select(x => x.numPago).First();
+                        var descuento = context.Factura.Where(x => x.idVenta == Id).Select(x => x.descuento).First();
+                        var idUsuario = context.Venta.Where(x => x.idVenta == Id).Select(x => x.idUsuario).First();
+
+
+                        RequestVenta._Factura[] r = new RequestVenta._Factura[] { new RequestVenta._Factura { total = total, numPago = numPago, descuento = descuento, idUsuario = (int)idUsuario } };
+
+                        var venta = new RequestVenta();
+                        venta.idVenta = Id;
+                        venta.idUsuario = idUsuario;
+                        venta.Factura = r;
+
+
+
+
+                        venta.idUsuario = context.Venta.Where(x => x.idVenta == Id).Select(x => x.idUsuario).First();
+                        venta.idVenta = context.Venta.Where(x => x.idVenta == Id).Select(x => x.idVenta).First();
+
+                        empresa = context.Configuraciones.Find("Empresa").Value;
+                        rnc = context.Configuraciones.Find("RNC").Value;
+                        telefono = context.Configuraciones.Find("Telefono").Value;
+                        saludo = context.Configuraciones.Find("Saludo").Value;
+
+                        Venta _venta = context.Venta.Find(venta.idVenta);
+                        _venta.ordenFacturada = true;
+
+                        //for (int index = 0; index < venta.Factura.Length; index++)
+                        //{
+                        //    Factura factura = new Factura()
+                        //    {
+                        //        descuento = venta.Factura[index].descuento,
+                        //        fecha = DateTime.Now,
+                        //        IVA = 18,
+                        //        idVenta = venta.Factura[index].idVenta,
+                        //        numFactura = venta.Factura[index].numFactura,
+                        //        numPago = venta.Factura[index].numPago,
+                        //        TieneCedito = false,
+                        //        total = venta.Factura[index].total
+                        //    };
+
+                        //    if (venta.Factura[index].idUsuario != 0)
+                        //    {
+                        //        factura.TieneCedito = true;
+
+                        //        Creditos credito = new Creditos()
+                        //        {
+                        //            idUsuario = venta.Factura[index].idUsuario,
+                        //            MontoRestante = (decimal)factura.total,
+                        //            numFactura = factura.numFactura
+                        //        };
+
+                        //        context.Creditos.Add(credito);
+                        //    }
+
+                        //    context.Factura.Add(factura);
+                        //}
+
+                        //context.SaveChanges();
+
+                        cliente = "xxx";///context.Cliente.Find(_venta.idCliente).nombre;
+                        vendedor = context.Usuario.Find(_venta.idUsuario).nombre;
+                        subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == venta.idVenta).Sum(vd => vd.subTotal);
+                        descuentos = subtotal - (decimal)venta.Factura.Sum(f => f.total);
+                        itbis = subtotal * 0.18m;
+                        propina = subtotal * 0.10m;
+                       
+                        data =
+                            context.DetalleVenta
+                            .Where(vd => vd.idVenta == venta.idVenta)
+                            .AsEnumerable()
+                           .Select(vd => new string[5] {
+                        "",
+                        vd.Producto.nombre.ToUpper(),
+                        Math.Round((decimal)vd.cantidad, 2).ToString("#,0"),
+                        Math.Round((decimal)vd.precioVenta, 2).ToString("$#,0.00"),
+                        Math.Round((decimal)vd.subTotal, 2).ToString("$#,0.00")
+                        })
+                        .ToArray();
+
+                        Printer printer = new Printer();
+
+                        IDictionary<string, string> list1 = new Dictionary<string, string>();
+                        list1.Add("Cliente", cliente.ToUpper());
+                        list1.Add("Orden", venta.idVenta.ToString());
+                        list1.Add("Vendedor/a", vendedor.ToUpper());
+                        list1.Add("RNC", rnc);
+                        list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
+                        list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
+
+                        Dictionary<string, string> tableDetails = new Dictionary<string, string>();
+                        tableDetails.Add("Subtotal", (subtotal - itbis - propina).ToString("$#,0.00"));
+                        tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
+                        tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
+                        tableDetails.Add("Descuento", descuentos.ToString("$#,0.00") + " (" + venta.Factura[0].descuento.GetValueOrDefault(0).ToString() + "%)");
+                        Dictionary<string, string> tableTotal = new Dictionary<string, string>();
+                        tableTotal.Add("TOTAL", (subtotal - descuentos).ToString("$#,0.00"));
+
+                        printer.AddTitle("Factura de consumidor final");
+                        printer.AddSpace(2);
+                        printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
+                        printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
+                        printer.AddSpace(2);
+                        printer.AddSubtitle("Información general");
+                        printer.AddSpace();
+                        printer.AddDescriptionList(list1, 2);
+                        printer.AddSpace(2);
+                        printer.AddSubtitle("Productos");
+                        printer.AddSpace();
+                        printer.AddTable(new string[4] { "Código", "Cantidad", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
+                        printer.AddSpace();
+                        printer.AddTableDetails(tableDetails, 4);
+                        printer.AddSpace();
+                        printer.AddTableDetails(tableTotal, 4);
+                        printer.AddSpace(2);
+                        printer.AddBarCode(venta.idVenta.ToString());
+                        printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
+                        printer.AddSpace(2);
+
+                        printer.Print();
+
+                        InfoMensaje Info = new InfoMensaje
+                        {
+                            Tipo = "Ready",
+                            Mensaje = "Facturación realizada con exito"
+                        };
+
+                        using (var entity = new barbdEntities())
+                        {
+
+
+                            List<Venta> v = new List<Venta>();
+
+                            var idcuadre = entity.Cuadre.SingleOrDefault(x => x.cerrado == false);
+
+
+                            var ReportesVentas_ = entity.Venta.Include("usuario").Where(x => x.idCuadre == idcuadre.idCuadre && x.ordenFacturada == true).ToList();
+
+                            ViewBag.tipopago = entity.ModoPago.ToList();
+                            return PartialView(ReportesVentas_);
+
+                        }
+
+                        //  return Json(Info, JsonRequestBehavior.AllowGet);
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -2685,7 +3227,7 @@ namespace barApp.Controllers
                 {
                     idUsuario = ObjUsuario.idUsuario,
                     nombre = ObjUsuario.nombre,
-                    contrasena =ObjUsuario.contrasena,
+                    contrasena = ObjUsuario.contrasena,
                     idTarjeta = ObjUsuario.idTarjeta,
                     Correo = ObjUsuario.Correo,
                     idRol = ObjUsuario.idRol,
@@ -3010,12 +3552,12 @@ namespace barApp.Controllers
             {
                 using (barbdEntities context = new barbdEntities())
                 {
-               
+
                     Printer printer = new Printer();
 
                     printer.AddTitle("Entrada de Producto (Almacen)");
                     printer.AddSpace(2);
-                    printer.AddSubtitle("Fecha: " +DateTime.Now.ToLongDateString());
+                    printer.AddSubtitle("Fecha: " + DateTime.Now.ToLongDateString());
                     printer.AddSpace(1);
 
 
@@ -3030,7 +3572,7 @@ namespace barApp.Controllers
                             }
                         ).ToArray();
 
-                    printer.AddTable(new string[3] { "Producto", "Cantidad","Costo" }, resumen);
+                    printer.AddTable(new string[3] { "Producto", "Cantidad", "Costo" }, resumen);
 
                     if (resumen.Count() > 0)
                     {
@@ -3042,7 +3584,7 @@ namespace barApp.Controllers
                         return Json("no", JsonRequestBehavior.AllowGet);
                     }
 
-                   
+
                 }
             }
             catch (Exception ex)
@@ -3116,8 +3658,8 @@ namespace barApp.Controllers
                 }
                 using (barbdEntities entity = new barbdEntities())
                 {
-                    
-                  
+
+
                     ViewData["AllCreditos"] = entity.Creditos.Include("Pagos").AsEnumerable().Select(c => UntrackedCredito(c)).ToArray();
                     ViewData["ListaCreditos"] = entity.Creditos.Include("Usuario").Include("Pagos").Where(c => c.MontoRestante > 0).ToArray();
                     ViewData["ListaHistoricoCreditos"] = entity.Creditos.Include("Usuario").Include("Pagos").Where(c => c.MontoRestante == 0).ToArray();
@@ -3125,7 +3667,7 @@ namespace barApp.Controllers
                     return PartialView("ListaCreditos", ViewData["ListaCreditos"]);
 
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -3691,13 +4233,13 @@ namespace barApp.Controllers
                     if (rango.index == -2)
                     {
 
-                        
+
 
                         var ReportesVentas_ = entity.Venta.Include("cuadre").Include("factura").Include("usuario").Include("detalleventa").Include("DetallesVentaEspecial").Where(x => t.Contains(x.idCuadre) && x.ordenFacturada == true).ToList();
 
-                        var ReportesVentas_1 = entity.Venta.Include("cuadre").Include("factura").Include("usuario").Include("detalleventa").Include("DetallesVentaEspecial").Where(x => t.Contains(x.idCuadre) && x.ordenFacturada == true).Select(x=> x.idVenta).ToList();
+                        var ReportesVentas_1 = entity.Venta.Include("cuadre").Include("factura").Include("usuario").Include("detalleventa").Include("DetallesVentaEspecial").Where(x => t.Contains(x.idCuadre) && x.ordenFacturada == true).Select(x => x.idVenta).ToList();
 
-                       
+
                         List<Factura> vv = new List<Factura>();
 
                         foreach (var item in ReportesVentas_1)
@@ -3709,16 +4251,16 @@ namespace barApp.Controllers
                         }
 
                         var tt = vv.Select(x => x.idVenta).ToList();
-                       
-                        
+
+
                         float ganacina = 0;
-                       
-                        
-                        if (tt.Count>0)
+
+
+                        if (tt.Count > 0)
                         {
-                             ganacina = entity.Factura.Where(x => tt.Contains(x.idVenta)).Sum(x => x.total);
-                        }                       
-                      
+                            ganacina = entity.Factura.Where(x => tt.Contains(x.idVenta)).Sum(x => x.total);
+                        }
+
 
 
                         decimal contador = 0;
@@ -3729,9 +4271,9 @@ namespace barApp.Controllers
                             foreach (var item1 in item.DetalleVenta)
                             {
 
-                                 //decimal precioentrada = entity.Factura.Where(x => x.idVenta == item1.idVenta).SingleOrDefault().total;
+                                //decimal precioentrada = entity.Factura.Where(x => x.idVenta == item1.idVenta).SingleOrDefault().total;
 
-                                contador += item1.cantidad *  Convert.ToDecimal(item1.precioEntrada);
+                                contador += item1.cantidad * Convert.ToDecimal(item1.precioEntrada);
 
                             }
 
@@ -4005,56 +4547,56 @@ namespace barApp.Controllers
 
         [HttpPost]
         public ActionResult Ncf(FormCollection forms)
-        {         
+        {
 
             string NumeroDeSolicitudERROR = "";
             try
             {
-               
-                    if (Request != null)
+
+                if (Request != null)
+                {
+                    HttpPostedFileBase file = Request.Files["file"];
+
+                    if ((file != null) && (file.ContentLength > 0) && !string.IsNullOrEmpty(file.FileName))
                     {
-                        HttpPostedFileBase file = Request.Files["file"];
+                        string e = System.IO.Path.GetExtension(file.FileName);
 
-                        if ((file != null) && (file.ContentLength > 0) && !string.IsNullOrEmpty(file.FileName))
+                        if (e == ".csv")
                         {
-                            string e = System.IO.Path.GetExtension(file.FileName);
 
-                            if (e == ".csv")
+                            List<ComprobanteFiscal> Listcomprobante = new List<ComprobanteFiscal>();
+                            ComprobanteFiscal objComprobante;
+
+
+                            var filePath = string.Empty;
+                            string conString = string.Empty;
+                            string path = Server.MapPath("~/Uploads/");
+                            filePath = path + file.FileName;
+                            file.SaveAs(filePath);
+                            string csvData = System.IO.File.ReadAllText(filePath);
+
+                            string[] org = csvData.Split('\n');
+
+                            foreach (var item in org)
                             {
-
-                                List<ComprobanteFiscal> Listcomprobante = new List<ComprobanteFiscal>();
-                                ComprobanteFiscal objComprobante;
-
-
-                                var filePath = string.Empty;
-                                string conString = string.Empty;
-                                string path = Server.MapPath("~/Uploads/");
-                                filePath = path + file.FileName;
-                                file.SaveAs(filePath);
-                                string csvData = System.IO.File.ReadAllText(filePath);
-
-                                string[] org = csvData.Split('\n');
-
-                                foreach (var item in org)
+                                if (item.Count() > 5)
                                 {
-                                    if (item.Count() > 5)
+                                    objComprobante = new ComprobanteFiscal
                                     {
-                                        objComprobante = new ComprobanteFiscal
-                                        {
-                                            NCF = item.Replace("\r", "").ToString().Trim(),
-                                            Utilizado = false
-                                        };
+                                        NCF = item.Replace("\r", "").ToString().Trim(),
+                                        Utilizado = false
+                                    };
 
-                                        Listcomprobante.Add(objComprobante);
-
-                                    }
+                                    Listcomprobante.Add(objComprobante);
 
                                 }
 
-                                if (Listcomprobante.Count > 1)
-                                {
+                            }
 
-                             
+                            if (Listcomprobante.Count > 1)
+                            {
+
+
 
                                 using (var Context = new barbdEntities())
                                 {
@@ -4062,7 +4604,7 @@ namespace barApp.Controllers
 
                                     var validar = Context.ComprobanteFiscal.Where(x => l.Contains(x.NCF)).Count();
 
-                                    if (validar==0)
+                                    if (validar == 0)
                                     {
 
                                         Context.ComprobanteFiscal.AddRange(Listcomprobante);
@@ -4092,23 +4634,8 @@ namespace barApp.Controllers
                                         return PartialView();
                                     }
 
-                                
-                                }                                  
 
                                 }
-                                else
-                                {
-                                    var Info = new InfoMensaje
-                                    {
-                                        Tipo = "Warning",
-                                        Mensaje = "No existen comprobante fiscal"
-                                    };
-                                    ViewData["Alert"] = Info;
-                                
-
-                                }
-
-                                return PartialView();
 
                             }
                             else
@@ -4116,23 +4643,38 @@ namespace barApp.Controllers
                                 var Info = new InfoMensaje
                                 {
                                     Tipo = "Warning",
-                                    Mensaje = "Archivo no tiene formato .csv"
+                                    Mensaje = "No existen comprobante fiscal"
                                 };
                                 ViewData["Alert"] = Info;
 
+
                             }
+
+                            return PartialView();
+
                         }
                         else
                         {
                             var Info = new InfoMensaje
                             {
                                 Tipo = "Warning",
-                                Mensaje = "Adjunte el archivo"
+                                Mensaje = "Archivo no tiene formato .csv"
                             };
                             ViewData["Alert"] = Info;
 
                         }
-                    
+                    }
+                    else
+                    {
+                        var Info = new InfoMensaje
+                        {
+                            Tipo = "Warning",
+                            Mensaje = "Adjunte el archivo"
+                        };
+                        ViewData["Alert"] = Info;
+
+                    }
+
 
                 }
 
@@ -4203,102 +4745,215 @@ namespace barApp.Controllers
 
             //}
 
-
-            int result = 0;
-            string empresa;
-            string rnc;
-            string telefono;
-            string saludo;
-            string cliente;
-            string vendedor;
-            decimal subtotal;
-            decimal itbis;
-            decimal propina;
-            string[][] data;
-            decimal Dollar;
-            decimal Euro;
-
-            using (barbdEntities context = new barbdEntities())
+            if (propina_.ToUpper() == "SI")
             {
-                empresa = context.Configuraciones.Find("Empresa").Value;
-                rnc = context.Configuraciones.Find("RNC").Value;
-                telefono = context.Configuraciones.Find("Telefono").Value;
-                saludo = context.Configuraciones.Find("Saludo").Value;
-                var d = context.Configuraciones.Find("Dollar").Value;
-                Dollar = Convert.ToDecimal(d);
-                var e = context.Configuraciones.Find("Euro").Value;
-                Euro = Convert.ToDecimal(e);
 
-                Venta venta = context.Venta.Find(id);
-                venta.ordenCerrada = true;
+                int result = 0;
+                string empresa;
+                string rnc;
+                string telefono;
+                string saludo;
+                string cliente;
+                string vendedor;
+                decimal subtotal;
+                decimal itbis;
+                decimal propina;
+                string[][] data;
+                decimal Dollar;
+                decimal Euro;
 
-                venta.Cliente.idMesa = null;
+                using (barbdEntities context = new barbdEntities())
+                {
+                    empresa = context.Configuraciones.Find("Empresa").Value;
+                    rnc = context.Configuraciones.Find("RNC").Value;
+                    telefono = context.Configuraciones.Find("Telefono").Value;
+                    saludo = context.Configuraciones.Find("Saludo").Value;
+                    var d = context.Configuraciones.Find("Dollar").Value;
+                    Dollar = Convert.ToDecimal(d);
+                    var e = context.Configuraciones.Find("Euro").Value;
+                    Euro = Convert.ToDecimal(e);
 
-                result = context.SaveChanges();
-                cliente = string.IsNullOrEmpty(venta.Cliente.nMesa)?"0":venta.Cliente.nMesa;// "xxx";//context.Cliente.Find(venta.idCliente).nombre;
-                vendedor = context.Usuario.Find(venta.idUsuario).nombre;
-                subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.subTotal);
-                itbis = context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.18m;
-                propina = context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.10m;
-                data =
-                    context.DetalleVenta
-                    .Where(vd => vd.idVenta == id)
-                    .AsEnumerable()
-                    .Select(vd => new string[5] {
+                    Venta venta = context.Venta.Find(id);
+                    venta.ordenCerrada = true;
+
+                    venta.Cliente.idMesa = null;
+
+                    result = context.SaveChanges();
+                    cliente = string.IsNullOrEmpty(venta.Cliente.nMesa) ? "0" : venta.Cliente.nMesa;// "xxx";//context.Cliente.Find(venta.idCliente).nombre;
+                    vendedor = context.Usuario.Find(venta.idUsuario).nombre;
+                    subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.subTotal);
+                    itbis = subtotal * 0.18m;
+                    //propina = context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.10m;
+                    data =
+                        context.DetalleVenta
+                        .Where(vd => vd.idVenta == id)
+                        .AsEnumerable()
+                        .Select(vd => new string[5] {
                         "",
                         vd.Producto.nombre.ToUpper(),
                         Math.Round((decimal)vd.cantidad, 2).ToString("#,0"),
                         Math.Round((decimal)vd.precioVenta, 2).ToString("$#,0.00"),
                         Math.Round((decimal)vd.subTotal, 2).ToString("$#,0.00")
-                    })
-                    .ToArray();
+                        })
+                        .ToArray();
+                }
+
+                Printer printer = new Printer();
+
+                IDictionary<string, string> list1 = new Dictionary<string, string>();
+                list1.Add("Cliente", cliente.ToUpper());
+                list1.Add("Orden", id.ToString());
+                list1.Add("Vendedor/a", vendedor.ToUpper());
+                list1.Add("RNC", rnc);
+                list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
+                list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
+
+                Dictionary<string, string> tableDetails = new Dictionary<string, string>();
+                Dictionary<string, string> tableTotal = new Dictionary<string, string>();
+                if (itbis_.ToUpper() == "SI")
+                {
+
+                    tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
+                    tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
+                    //tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
+
+                    tableTotal.Add("TOTAL", subtotal.ToString("$#,0.00"));
+
+                }
+                else
+                {
+                    tableTotal.Add("TOTAL", subtotal.ToString("$#,0.00"));
+                }
+
+                printer.AddTitle("Prefactura");
+                printer.AddSpace(2);
+                printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
+                printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
+                printer.AddSpace(2);
+                printer.AddSubtitle("Información general");
+                printer.AddSpace();
+                printer.AddDescriptionList(list1, 2);
+                printer.AddSpace(2);
+                printer.AddSubtitle("Productos");
+                printer.AddSpace();
+                printer.AddTable(new string[4] { "Producto", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
+                printer.AddSpace();
+                printer.AddTableDetails(tableDetails, 4);
+                printer.AddSpace();
+                printer.AddTableDetails(tableTotal, 4);
+                printer.AddSpace(2);
+                printer.AddBarCode(id.ToString());
+                printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
+                printer.AddSpace(2);
+                decimal DollarInfo = subtotal / Dollar;
+                printer.AddString("Dollar $ " + DollarInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
+                decimal EuroInfo = subtotal / Euro;
+                printer.AddString("Euro $ " + EuroInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
+
+                printer.Print();
+
+                return 1;
+
             }
+            else
+            {
 
-            Printer printer = new Printer();
+                int result = 0;
+                string empresa;
+                string rnc;
+                string telefono;
+                string saludo;
+                string cliente;
+                string vendedor;
+                decimal subtotal;
+                decimal itbis;
+                decimal propina;
+                string[][] data;
+                decimal Dollar;
+                decimal Euro;
 
-            IDictionary<string, string> list1 = new Dictionary<string, string>();
-            list1.Add("Cliente", cliente.ToUpper());
-            list1.Add("Orden", id.ToString());
-            list1.Add("Vendedor/a", vendedor.ToUpper());
-            list1.Add("RNC", rnc);
-            list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
-            list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
+                using (barbdEntities context = new barbdEntities())
+                {
+                    empresa = context.Configuraciones.Find("Empresa").Value;
+                    rnc = context.Configuraciones.Find("RNC").Value;
+                    telefono = context.Configuraciones.Find("Telefono").Value;
+                    saludo = context.Configuraciones.Find("Saludo").Value;
+                    var d = context.Configuraciones.Find("Dollar").Value;
+                    Dollar = Convert.ToDecimal(d);
+                    var e = context.Configuraciones.Find("Euro").Value;
+                    Euro = Convert.ToDecimal(e);
 
-            Dictionary<string, string> tableDetails = new Dictionary<string, string>();
-            tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
-            tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
-            ///tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
-            Dictionary<string, string> tableTotal = new Dictionary<string, string>();
-            tableTotal.Add("TOTAL", subtotal.ToString("$#,0.00"));
+                    Venta venta = context.Venta.Find(id);
+                    venta.ordenCerrada = true;
 
-            printer.AddTitle("Prefactura");
-            printer.AddSpace(2);
-            printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
-            printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
-            printer.AddSpace(2);
-            printer.AddSubtitle("Información general");
-            printer.AddSpace();
-            printer.AddDescriptionList(list1, 2);
-            printer.AddSpace(2);
-            printer.AddSubtitle("Productos");
-            printer.AddSpace();
-            printer.AddTable(new string[4] { "Producto", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
-            printer.AddSpace();
-            printer.AddTableDetails(tableDetails, 4);
-            printer.AddSpace();
-            printer.AddTableDetails(tableTotal, 4);
-            printer.AddSpace(2);
-            printer.AddBarCode(id.ToString());
-            printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
-            printer.AddSpace(2);
-            decimal DollarInfo = subtotal / Dollar;
-            printer.AddString("Dollar $ " + DollarInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
-            decimal EuroInfo = subtotal / Euro;
-            printer.AddString("Euro $ " + EuroInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
-            
-            printer.Print();
+                    venta.Cliente.idMesa = null;
 
-            return 1;
+                    result = context.SaveChanges();
+                    cliente = string.IsNullOrEmpty(venta.Cliente.nMesa) ? "0" : venta.Cliente.nMesa;// "xxx";//context.Cliente.Find(venta.idCliente).nombre;
+                    vendedor = context.Usuario.Find(venta.idUsuario).nombre;
+                    subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.subTotal);
+                    itbis = subtotal * 0.18m;
+                    propina = subtotal * 0.10m;
+                    data =
+                        context.DetalleVenta
+                        .Where(vd => vd.idVenta == id)
+                        .AsEnumerable()
+                        .Select(vd => new string[5] {
+                        "",
+                        vd.Producto.nombre.ToUpper(),
+                        Math.Round((decimal)vd.cantidad, 2).ToString("#,0"),
+                        Math.Round((decimal)vd.precioVenta, 2).ToString("$#,0.00"),
+                        Math.Round((decimal)vd.subTotal, 2).ToString("$#,0.00")
+                        })
+                        .ToArray();
+                }
+
+                Printer printer = new Printer();
+
+                IDictionary<string, string> list1 = new Dictionary<string, string>();
+                list1.Add("Cliente", cliente.ToUpper());
+                list1.Add("Orden", id.ToString());
+                list1.Add("Vendedor/a", vendedor.ToUpper());
+                list1.Add("RNC", rnc);
+                list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
+                list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
+
+                Dictionary<string, string> tableDetails = new Dictionary<string, string>();
+                tableDetails.Add("Subtotal", (subtotal - itbis - propina).ToString("$#,0.00"));
+                tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
+                tableDetails.Add("Propina %10", propina.ToString("$#,0.00"));
+                Dictionary<string, string> tableTotal = new Dictionary<string, string>();
+                tableTotal.Add("TOTAL", subtotal.ToString("$#,0.00"));
+
+                printer.AddTitle("Prefactura");
+                printer.AddSpace(2);
+                printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
+                printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
+                printer.AddSpace(2);
+                printer.AddSubtitle("Información general");
+                printer.AddSpace();
+                printer.AddDescriptionList(list1, 2);
+                printer.AddSpace(2);
+                printer.AddSubtitle("Productos");
+                printer.AddSpace();
+                printer.AddTable(new string[4] { "Producto", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
+                printer.AddSpace();
+                printer.AddTableDetails(tableDetails, 4);
+                printer.AddSpace();
+                printer.AddTableDetails(tableTotal, 4);
+                printer.AddSpace(2);
+                printer.AddBarCode(id.ToString());
+                printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
+                printer.AddSpace(2);
+                decimal DollarInfo = subtotal / Dollar;
+                printer.AddString("Dollar $ " + DollarInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
+                decimal EuroInfo = subtotal / Euro;
+                printer.AddString("Euro $ " + EuroInfo.ToString("$#,0.00"), alignment: System.Drawing.StringAlignment.Center);
+
+                printer.Print();
+
+                return 1;
+            }
         }
 
         public int PrefacturarCredito(int id)
@@ -4342,127 +4997,266 @@ namespace barApp.Controllers
 
             //}
 
-      
 
-
-
-            int result = 0;
-            string empresa;
-            string rnc;
-            string telefono;
-            string saludo;
-            string cliente;
-            string vendedor;
-            decimal subtotal;
-            decimal itbis;
-            string[][] data;
-            decimal descuento;
-            string des;
-
-
-            using (barbdEntities context = new barbdEntities())
+            if (propina_.ToUpper() == "SI")
             {
-                var f = context.Factura.Find(id);
-
-                id = Convert.ToInt32(f.idVenta);
 
 
-                empresa = context.Configuraciones.Find("Empresa").Value;
-               
-                telefono = context.Configuraciones.Find("Telefono").Value;
-                saludo = context.Configuraciones.Find("Saludo").Value;
+                int result = 0;
+                string empresa;
+                string rnc;
+                string telefono;
+                string saludo;
+                string cliente;
+                string vendedor;
+                decimal subtotal;
+                decimal itbis;
+                string[][] data;
+                decimal descuento;
+                string des;
 
-                Venta venta = context.Venta.Find(id);
-                        
-                venta.ordenCerrada = true;
+
+                using (barbdEntities context = new barbdEntities())
+                {
+                    var f = context.Factura.Find(id);
+
+                    id = Convert.ToInt32(f.idVenta);
 
 
-                rnc = String.IsNullOrEmpty(venta.Cliente.rnc) ? "" : venta.Cliente.rnc.ToString();
+                    empresa = context.Configuraciones.Find("Empresa").Value;
 
-                venta.Cliente.idMesa = null;
+                    telefono = context.Configuraciones.Find("Telefono").Value;
+                    saludo = context.Configuraciones.Find("Saludo").Value;
 
-                result = context.SaveChanges();
-                cliente = context.Cliente.Find(venta.idCliente).nMesa;
-                vendedor = context.Usuario.Find(venta.idUsuario).nombre;
-                subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.subTotal);
-                descuento = subtotal - (decimal)venta.Factura.Sum(ff => ff.total);// (decimal)factura_.descuento;
-                des = context.Factura.Where(x => x.idVenta == id).First().descuento.ToString();
-                itbis = context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.precioVenta).GetValueOrDefault(0) * 0.18m;
-                data =
-                    context.DetalleVenta
-                    .Where(vd => vd.idVenta == id)
-                    .AsEnumerable()
-                    .Select(vd => new string[5] {
+                    Venta venta = context.Venta.Find(id);
+
+                    venta.ordenCerrada = true;
+
+
+                    rnc = String.IsNullOrEmpty(venta.Cliente.rnc) ? "" : venta.Cliente.rnc.ToString();
+
+                    venta.Cliente.idMesa = null;
+
+                    result = context.SaveChanges();
+                    cliente = context.Cliente.Find(venta.idCliente).nMesa;
+                    vendedor = context.Usuario.Find(venta.idUsuario).nombre;
+                    subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.subTotal);
+                    descuento = subtotal - (decimal)venta.Factura.Sum(ff => ff.total);// (decimal)factura_.descuento;
+                    des = context.Factura.Where(x => x.idVenta == id).First().descuento.ToString();
+                    itbis = subtotal * 0.18m;
+                    data =
+                        context.DetalleVenta
+                        .Where(vd => vd.idVenta == id)
+                        .AsEnumerable()
+                        .Select(vd => new string[5] {
                         "",
                         vd.Producto.nombre.ToUpper(),
                         Math.Round((decimal)vd.cantidad, 2).ToString("#,0"),
                         Math.Round((decimal)vd.precioVenta, 2).ToString("$#,0.00"),
                         Math.Round((decimal)vd.subTotal, 2).ToString("$#,0.00")
-                    })
-                    .ToArray();
+                        })
+                        .ToArray();
 
 
-                Printer printer = new Printer();
+                    Printer printer = new Printer();
 
-                IDictionary<string, string> list1 = new Dictionary<string, string>();
-                list1.Add("Cliente", cliente.ToUpper());
-                list1.Add("Orden", id.ToString());
-                list1.Add("Vendedor/a", vendedor.ToUpper());
-                list1.Add("RNC", rnc);
-                if (string.IsNullOrEmpty(rnc))
-                {
-                    list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
-                    list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
-                }
-                else
-                {
-                    list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy hh:mm:ss tt"));
-                    var NCF_ = context.ComprobanteFiscal.Where(x => x.Utilizado == false).Count() > 0 ? context.ComprobanteFiscal.Where(x => x.Utilizado == false).First().NCF : "";
-                    list1.Add("NCF", NCF_);
-
-                    if (!String.IsNullOrEmpty(NCF_))
+                    IDictionary<string, string> list1 = new Dictionary<string, string>();
+                    list1.Add("Cliente", cliente.ToUpper());
+                    list1.Add("Orden", id.ToString());
+                    list1.Add("Vendedor/a", vendedor.ToUpper());
+                    list1.Add("RNC", rnc);
+                    if (string.IsNullOrEmpty(rnc))
                     {
-                        var ACTRNC = context.ComprobanteFiscal.Where(X => X.NCF == NCF_).First();
-                        ACTRNC.Utilizado = true;
-                        context.SaveChanges();
+                        list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
+                        list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
+                    }
+                    else
+                    {
+                        list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy hh:mm:ss tt"));
+                        var NCF_ = context.ComprobanteFiscal.Where(x => x.Utilizado == false).Count() > 0 ? context.ComprobanteFiscal.Where(x => x.Utilizado == false).First().NCF : "";
+                        list1.Add("NCF", NCF_);
+
+                        if (!String.IsNullOrEmpty(NCF_))
+                        {
+                            var ACTRNC = context.ComprobanteFiscal.Where(X => X.NCF == NCF_).First();
+                            ACTRNC.Utilizado = true;
+                            context.SaveChanges();
+                        }
+
+
+                    }
+
+                    Dictionary<string, string> tableDetails = new Dictionary<string, string>();
+                    Dictionary<string, string> tableTotal = new Dictionary<string, string>();
+
+                    if (itbis_.ToUpper() == "SI")
+                    {
+                       
+                        tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
+                        tableDetails.Add("ITBIS", itbis.ToString("$#,0.00"));
+
+                        tableDetails.Add("Descuento", descuento.ToString("$#,0.00") + " (" + des.ToString() + "%)");
+
+                        tableTotal.Add("TOTAL", (subtotal - descuento).ToString("$#,0.00"));
+
+                    }
+                    else
+                    {
+                        tableDetails.Add("Descuento", descuento.ToString("$#,0.00") + " (" + des.ToString() + "%)");
+
+                        tableTotal.Add("TOTAL", (subtotal - descuento).ToString("$#,0.00"));
                     }
 
 
+                    printer.AddTitle("Factura Credito");
+                    printer.AddSpace(2);
+                    printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
+                    printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
+                    printer.AddSpace(2);
+                    printer.AddSubtitle("Información general");
+                    printer.AddSpace();
+                    printer.AddDescriptionList(list1, 2);
+                    printer.AddSpace(2);
+                    printer.AddSubtitle("Productos");
+                    printer.AddSpace();
+                    printer.AddTable(new string[4] { "Producto", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
+                    printer.AddSpace();
+                    printer.AddTableDetails(tableDetails, 4);
+                    printer.AddSpace();
+                    printer.AddTableDetails(tableTotal, 4);
+                    printer.AddSpace(2);
+                    printer.AddBarCode(id.ToString());
+                    printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
+                    printer.AddSpace(2);
+
+                    printer.Print();
+
+                    return 1;
                 }
+            }
+            else
+            {
+                int result = 0;
+                string empresa;
+                string rnc;
+                string telefono;
+                string saludo;
+                string cliente;
+                string vendedor;
+                decimal subtotal;
+                decimal itbis;
+                string[][] data;
+                decimal descuento;
+                string des;
+                decimal propina;
 
-                Dictionary<string, string> tableDetails = new Dictionary<string, string>();
-                tableDetails.Add("Subtotal", (subtotal - itbis).ToString("$#,0.00"));
-                tableDetails.Add("ITBIS", itbis.ToString("$#,0.00"));
 
-                tableDetails.Add("Descuento", descuento.ToString("$#,0.00") + " (" + des.ToString() + "%)");
-                Dictionary<string, string> tableTotal = new Dictionary<string, string>();
-                tableTotal.Add("TOTAL", (subtotal - descuento).ToString("$#,0.00"));
+                using (barbdEntities context = new barbdEntities())
+                {
+                    var f = context.Factura.Find(id);
+
+                    id = Convert.ToInt32(f.idVenta);
 
 
-                printer.AddTitle("Factura Credito");
-                printer.AddSpace(2);
-                printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
-                printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
-                printer.AddSpace(2);
-                printer.AddSubtitle("Información general");
-                printer.AddSpace();
-                printer.AddDescriptionList(list1, 2);
-                printer.AddSpace(2);
-                printer.AddSubtitle("Productos");
-                printer.AddSpace();
-                printer.AddTable(new string[4] { "Producto", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
-                printer.AddSpace();
-                printer.AddTableDetails(tableDetails, 4);
-                printer.AddSpace();
-                printer.AddTableDetails(tableTotal, 4);
-                printer.AddSpace(2);
-                printer.AddBarCode(id.ToString());
-                printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
-                printer.AddSpace(2);
+                    empresa = context.Configuraciones.Find("Empresa").Value;
 
-                printer.Print();
+                    telefono = context.Configuraciones.Find("Telefono").Value;
+                    saludo = context.Configuraciones.Find("Saludo").Value;
 
-                return 1;
+                    Venta venta = context.Venta.Find(id);
+
+                    venta.ordenCerrada = true;
+
+
+                    rnc = String.IsNullOrEmpty(venta.Cliente.rnc) ? "" : venta.Cliente.rnc.ToString();
+
+                    venta.Cliente.idMesa = null;
+
+                    result = context.SaveChanges();
+                    cliente = context.Cliente.Find(venta.idCliente).nMesa;
+                    vendedor = context.Usuario.Find(venta.idUsuario).nombre;
+                    subtotal = (decimal)context.DetalleVenta.Where(vd => vd.idVenta == id).Sum(vd => vd.subTotal);
+                    descuento = subtotal - (decimal)venta.Factura.Sum(ff => ff.total);// (decimal)factura_.descuento;
+                    des = context.Factura.Where(x => x.idVenta == id).First().descuento.ToString();
+                    itbis = subtotal * 0.18m;
+                    propina = subtotal * 0.10m;
+
+                    data =
+                        context.DetalleVenta
+                        .Where(vd => vd.idVenta == id)
+                        .AsEnumerable()
+                        .Select(vd => new string[5] {
+                        "",
+                        vd.Producto.nombre.ToUpper(),
+                        Math.Round((decimal)vd.cantidad, 2).ToString("#,0"),
+                        Math.Round((decimal)vd.precioVenta, 2).ToString("$#,0.00"),
+                        Math.Round((decimal)vd.subTotal, 2).ToString("$#,0.00")
+                        })
+                        .ToArray();
+
+
+                    Printer printer = new Printer();
+
+                    IDictionary<string, string> list1 = new Dictionary<string, string>();
+                    list1.Add("Cliente", cliente.ToUpper());
+                    list1.Add("Orden", id.ToString());
+                    list1.Add("Vendedor/a", vendedor.ToUpper());
+                    list1.Add("RNC", rnc);
+                    if (string.IsNullOrEmpty(rnc))
+                    {
+                        list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy"));
+                        list1.Add("Hora", DateTime.Now.ToString("hh:mm:ss tt"));
+                    }
+                    else
+                    {
+                        list1.Add("Fecha", DateTime.Now.ToString("dd MMM yyyy hh:mm:ss tt"));
+                        var NCF_ = context.ComprobanteFiscal.Where(x => x.Utilizado == false).Count() > 0 ? context.ComprobanteFiscal.Where(x => x.Utilizado == false).First().NCF : "";
+                        list1.Add("NCF", NCF_);
+
+                        if (!String.IsNullOrEmpty(NCF_))
+                        {
+                            var ACTRNC = context.ComprobanteFiscal.Where(X => X.NCF == NCF_).First();
+                            ACTRNC.Utilizado = true;
+                            context.SaveChanges();
+                        }
+
+
+                    }
+
+                    Dictionary<string, string> tableDetails = new Dictionary<string, string>();
+                    tableDetails.Add("Subtotal", (subtotal - itbis- propina).ToString("$#,0.00"));
+                    tableDetails.Add("ITBIS %18", itbis.ToString("$#,0.00"));
+                    tableDetails.Add("Propina %10", itbis.ToString("$#,0.00"));
+                    tableDetails.Add("Descuento", descuento.ToString("$#,0.00") + " (" + des.ToString() + "%)");
+                    Dictionary<string, string> tableTotal = new Dictionary<string, string>();
+                    tableTotal.Add("TOTAL", (subtotal - descuento).ToString("$#,0.00"));
+
+
+                    printer.AddTitle("Factura Credito");
+                    printer.AddSpace(2);
+                    printer.AddString(empresa, true, System.Drawing.StringAlignment.Center);
+                    printer.AddString(telefono, alignment: System.Drawing.StringAlignment.Center);
+                    printer.AddSpace(2);
+                    printer.AddSubtitle("Información general");
+                    printer.AddSpace();
+                    printer.AddDescriptionList(list1, 2);
+                    printer.AddSpace(2);
+                    printer.AddSubtitle("Productos");
+                    printer.AddSpace();
+                    printer.AddTable(new string[4] { "Producto", "Cant.", "Precio", "Subtotal" }, data, true, map: new float[4] { 35f, 15f, 25f, 25f });
+                    printer.AddSpace();
+                    printer.AddTableDetails(tableDetails, 4);
+                    printer.AddSpace();
+                    printer.AddTableDetails(tableTotal, 4);
+                    printer.AddSpace(2);
+                    printer.AddBarCode(id.ToString());
+                    printer.AddString(saludo, alignment: System.Drawing.StringAlignment.Center);
+                    printer.AddSpace(2);
+
+                    printer.Print();
+
+                    return 1;
+                }
             }
         }
 
@@ -4514,7 +5308,7 @@ namespace barApp.Controllers
 
         [HttpPost]
         public ActionResult ModificarProductoCarrito(int idDetalle, decimal idventa, int cantidad_)
-        {     
+        {
 
             using (barbdEntities context = new barbdEntities())
             {
@@ -4742,9 +5536,9 @@ namespace barApp.Controllers
 
 
             }
-            
-            
-   
+
+
+
 
         }
 
@@ -4752,7 +5546,7 @@ namespace barApp.Controllers
         [HttpPost]
         public ActionResult EliminarProductoCarrito(int idDetalle, decimal idventa)
         {
-        
+
 
             using (barbdEntities context = new barbdEntities())
             {
@@ -4781,7 +5575,7 @@ namespace barApp.Controllers
                         Cantidad = detalle.cantidad,
                         Precio = detalle.precioVenta,
                         IdCuadre = venta.idCuadre
-                        
+
                     };
 
                     context.ProductoEliminado.Add(ObjProductoEliminado);
@@ -4857,7 +5651,7 @@ namespace barApp.Controllers
                     };
                     context.Factura.Add(factura);
                     context.SaveChanges();
-                   // printer.CorreoEliminado("<html><head><style>table {  font-family: arial, sans-serif;  border-collapse: collapse;  width: 100%;}td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 8px;}tr:nth-child(even) { background-color: #dddddd;}</style></head><body><h2>Producto Eliminado (Elite)</h2><table>  <tr>    <th>No.Orden</th>    <th>Producto</th>    <th>Cant.</th>    <th>Precio</th>    <th>Sub-Total</th>  </tr>  <tr>    <td>" + ValidarDetalles.idVenta.ToString() + "</td>    <td>" + detalle.Producto.nombre.ToString() + "</td>    <td>" + detalle.cantidad.ToString() + "</td>    <td>" + detalle.precioVenta.ToString() + "</td>    <td>" + detalle.idVenta * detalle.precioVenta + "</td>  </tr></table>  <p><b>Multicore</b>.Reportes</p></body></html>");
+                    // printer.CorreoEliminado("<html><head><style>table {  font-family: arial, sans-serif;  border-collapse: collapse;  width: 100%;}td, th {  border: 1px solid #dddddd;  text-align: left;  padding: 8px;}tr:nth-child(even) { background-color: #dddddd;}</style></head><body><h2>Producto Eliminado (Elite)</h2><table>  <tr>    <th>No.Orden</th>    <th>Producto</th>    <th>Cant.</th>    <th>Precio</th>    <th>Sub-Total</th>  </tr>  <tr>    <td>" + ValidarDetalles.idVenta.ToString() + "</td>    <td>" + detalle.Producto.nombre.ToString() + "</td>    <td>" + detalle.cantidad.ToString() + "</td>    <td>" + detalle.precioVenta.ToString() + "</td>    <td>" + detalle.idVenta * detalle.precioVenta + "</td>  </tr></table>  <p><b>Multicore</b>.Reportes</p></body></html>");
                     // return 0;
 
                 }
