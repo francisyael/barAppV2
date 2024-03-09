@@ -15,6 +15,7 @@ namespace barApp.Controllers
     {
         private string itbis_ = System.Configuration.ConfigurationManager.AppSettings["itbis"].ToString();
         private string propina_ = System.Configuration.ConfigurationManager.AppSettings["propina"].ToString();
+        private string TipoCategoria = System.Configuration.ConfigurationManager.AppSettings["TipoCategoria"].ToString();
 
         public HomeController()
         {
@@ -35,7 +36,7 @@ namespace barApp.Controllers
                     return RedirectToAction("Index", "Login");
 
                 }
-
+                ViewData["TipoCategoria"] = TipoCategoria;
                 ViewBag.VendedorOrigen = entity.Usuario.Where(x => x.idRol == 2 || x.idRol == 7 && x.activo == true).Select(x => new { x.idUsuario, x.nombre }).ToList();
                 ViewData["ModoPago"] = entity.ModoPago.Where(m => m.numPago > 0).ToList();
                 ViewData["ClienteOrigen"] = new List<Cliente>();
@@ -47,15 +48,15 @@ namespace barApp.Controllers
                 ViewBag.Vendedores = entity.Usuario.Where(u => u.idRol == 2 || u.idRol == 7 && u.activo == true).AsEnumerable().Select(u => UntrackedUsuario(u)).ToArray();
                 ViewBag.Usuarios = entity.Usuario.Where(x => x.activo == true).AsEnumerable().Select(u => UntrackedUsuario(u)).ToArray();
                 ViewBag.GastosTotal = JsonConvert.SerializeObject(entity.Gastos.Where(g => g.idCuadre == cuadreActual).Sum(g => g.cantidad));
-                ViewBag.Efectivo = entity.Factura.Include("venta").Where(x => x.numPago == 1 && x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
-                ViewBag.Depositos = entity.Factura.Include("venta").Where(x => x.numPago == 3 && x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
-                ViewBag.TarjetaCredito = entity.Factura.Include("venta").Where(x => x.numPago == 2 && x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
-                ViewBag.Credito = entity.Factura.Include("venta").Where(x => x.Venta.idCuadre == cuadreActual && x.TieneCedito == true).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
+                ViewBag.Efectivo = entity.Factura.Include("venta").Where(x => x.Venta.idCuadre == cuadreActual && x.numPago == 1 && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
+                ViewBag.Depositos = entity.Factura.Include("venta").Where(x => x.Venta.idCuadre == cuadreActual && x.numPago == 3 && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
+                ViewBag.TarjetaCredito = entity.Factura.Include("venta").Where(x => x.Venta.idCuadre == cuadreActual &&  x.numPago == 2 && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
+                ViewBag.Credito = entity.Factura.Include("venta").Where(x => x.Venta.idCuadre == cuadreActual &&  x.TieneCedito == true).DefaultIfEmpty(null).Sum(x => (float?)x.total ?? 0f);
                 ViewBag.PagosCredito = entity.Pagos.Where(x => x.idCuadre == cuadreActual).DefaultIfEmpty(null).Sum(x => (float?)x.Monto ?? 0f);
-                ViewBag.Cortesia = entity.Factura.Include("venta").Include("detalleventa").Where(x => x.numPago == 0 && x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.Venta.total ?? 0f);
+                ViewBag.Cortesia = entity.Factura.Include("venta").Include("detalleventa").Where(x => x.Venta.idCuadre == cuadreActual && x.numPago == 0 && x.TieneCedito == false).DefaultIfEmpty(null).Sum(x => (float?)x.Venta.total ?? 0f);
 
 
-                IEnumerable<Factura> detalleCortesia = entity.Factura.Where(x => x.numPago == 0 && x.Venta.idCuadre == cuadreActual && x.TieneCedito == false).ToList();
+                IEnumerable<Factura> detalleCortesia = entity.Factura.Where(x => x.Venta.idCuadre == cuadreActual &&  x.numPago == 0  && x.TieneCedito == false).ToList();
 
                 var buscarcortesia = entity.DetalleVenta.ToList().Where(x => detalleCortesia.Select(b => b.idVenta).Contains(x.idVenta));
 
@@ -63,16 +64,16 @@ namespace barApp.Controllers
 
                 decimal total = 0;
 
-                foreach (var item in buscarcortesia)
-                {
-                    total += Convert.ToDecimal(item.cantidad * item.precioEntrada);
+                //foreach (var item in buscarcortesia)
+                //{
+                //    total += Convert.ToDecimal(item.cantidad * item.precioEntrada);
 
-                }
-                foreach (var item in buscarcortesiaEspecial)
-                {
-                    total += Convert.ToDecimal(item.cantidad * item.precioEntrada);
+                //}
+                //foreach (var item in buscarcortesiaEspecial)
+                //{
+                //    total += Convert.ToDecimal(item.cantidad * item.precioEntrada);
 
-                }
+                //}
 
 
                 ViewBag.CortesiaReal = total;
@@ -401,8 +402,8 @@ namespace barApp.Controllers
                     correo.AddSpace(3);
 
 
-                    printer.AddSubtitle("Restaurante");
-                    correo.AddSubtitle("Restaurante");
+                    printer.AddSubtitle(TipoCategoria);
+                    correo.AddSubtitle(TipoCategoria);
                     printer.AddSpace(2);
                     correo.AddSpace(1);
                     printer.AddTable(
@@ -3363,6 +3364,7 @@ namespace barApp.Controllers
         {
             using (var entity = new barbdEntities())
             {
+                ViewData["TipoCategoria"] = TipoCategoria;
                 ViewData["TransferirVista"] = "Si";
                 var queryInventario = entity.Database.SqlQuery<Models.Inventario>("exec sp_inventarioDisponibleInventario");
                 var queryProducto = entity.Producto.Where(x => x.Categoria.idTipoCategoria != 3 && x.activo == true).ToList().Select(x => new { x.idProducto, x.nombre });
@@ -3383,6 +3385,7 @@ namespace barApp.Controllers
             {
                 using (var entity = new barbdEntities())
                 {
+                    ViewData["TipoCategoria"] = TipoCategoria;
                     if (ModelState.IsValid)
                     {
                         ViewData["TransferirVista"] = "Si";
@@ -3441,6 +3444,7 @@ namespace barApp.Controllers
 
         public ActionResult InventarioAlmacen()
         {
+            ViewData["TipoCategoria"] = TipoCategoria;
             using (var entity = new barbdEntities())
             {
                 ViewData["TransferirVista"] = "Si";
@@ -3454,6 +3458,7 @@ namespace barApp.Controllers
 
         public ActionResult InventarioBar()
         {
+            ViewData["TipoCategoria"] = TipoCategoria;
             using (var entity = new barbdEntities())
             {
                 ViewData["TransferirVista"] = null;
@@ -3468,6 +3473,7 @@ namespace barApp.Controllers
         [HttpPost]
         public ActionResult BuscarTransferirInventario(Inventario inventario)
         {
+            ViewData["TipoCategoria"] = TipoCategoria;
             using (var entity = new barbdEntities())
             {
                 var ObjInventarioProducto = entity.Database.SqlQuery<Models.Inventario>("exec sp_inventarioDisponibleInventario");
@@ -3486,6 +3492,7 @@ namespace barApp.Controllers
         {
             try
             {
+                ViewData["TipoCategoria"] = TipoCategoria;
                 if (inventarioBar.cantidad > 0)
                 {
                     using (var entity = new barbdEntities())
@@ -4165,7 +4172,7 @@ namespace barApp.Controllers
                 Localidad localidad1 = new Localidad
                 {
                     Id = 2,
-                    Nombre = "Bar/Hookah/Restaurante"
+                    Nombre = "Bar/Hookah/Restaurante/" +TipoCategoria
 
                 };
                 listLocalidad.Add(localidad1);

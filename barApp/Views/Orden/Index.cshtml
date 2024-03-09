@@ -33,9 +33,9 @@
                     <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                         @if (Session["Rol"].ToString() != "7")
                         {
-                            <a class="nav-link" id="v-pills-profile-tab" data-toggle="pill" href="#v-pills-Restaurante" role="tab" aria-controls="v-pills-Restaurante" aria-selected="true">Restaurante</a>
+                            <a class="nav-link" id="v-pills-profile-tab" data-toggle="pill" href="#v-pills-Restaurante" role="tab" aria-controls="v-pills-Restaurante" aria-selected="true">@ViewData["TipoCategoria"]</a>
                         }
-                        <a class="nav-link active" id="v-pills-home-tab" data-toggle="pill" href="#v-pills-Bar" role="tab" aria-controls="v-pills-Bar" aria-selected="false">Bar/Hookah</a>
+                    <a class="nav-link active" id="v-pills-home-tab" data-toggle="pill" href="#v-pills-Bar" role="tab" aria-controls="v-pills-Bar" aria-selected="false">Bar</a>
                         @if (Session["Rol"].ToString() != "7")
                         {
                             <a class="nav-link" id="v-pills-profile-tab" data-toggle="pill" href="#v-pills-Especiales" role="tab" aria-controls="v-pills-Especiales" aria-selected="false">Especiales</a>

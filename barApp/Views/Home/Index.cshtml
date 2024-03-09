@@ -1103,6 +1103,11 @@
             let totalDescontar = montoNumber * (isNaN(descuento) ? 0 : descuento);
             let total = (modo == 0 ? 0 : (montoNumber - totalDescontar));
 
+            if (modo == -1 && descuento > 0) {
+                  alert('No se puede aplicar descuento a pago combinado');
+
+            }
+
             if (modo == -1) {
                 if ([...$('input[name=montosFacturar]').map((_, e) => parseFloat(e.value))].reduce((p, c) => p + c) == total) {
                     $('input[name=montosFacturar]').each((_, element) => {

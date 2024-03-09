@@ -11,6 +11,8 @@ namespace barApp.Controllers
 
         private string itbis_ = System.Configuration.ConfigurationManager.AppSettings["itbis"].ToString();
         private string propina_ = System.Configuration.ConfigurationManager.AppSettings["propina"].ToString();
+        private string TipoCategoria = System.Configuration.ConfigurationManager.AppSettings["TipoCategoria"].ToString();
+        
 
         // GET: Orden
         public ActionResult Index()
@@ -32,6 +34,7 @@ namespace barApp.Controllers
                 ViewBag.Categoria = entity.Categoria.ToList();
                 ViewBag.Producto = entity.Producto.Where(x => x.activo == true).ToList();
                 ViewData["Mesas"] = entity.Mesa.ToList();
+                ViewData["TipoCategoria"] = TipoCategoria;
             }
 
             return View();
